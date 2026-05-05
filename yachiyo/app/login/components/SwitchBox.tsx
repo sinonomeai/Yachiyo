@@ -9,7 +9,6 @@ interface SwitchBoxProps {
 export const SwitchBox = ({ isChangeForm, isToggle, changeForm }: SwitchBoxProps) => {
   // 登录面板的 Hook
   const loginFollower = useMouseFollower();
-
   // 注册面板的 Hook
   const registerFollower = useMouseFollower();
   return (
