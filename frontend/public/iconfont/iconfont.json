@@ -1,0 +1,79 @@
+{
+  "id": "5173360",
+  "name": "Yachiyo",
+  "font_family": "iconfont",
+  "css_prefix_text": "icon-",
+  "description": "",
+  "glyphs": [
+    {
+      "icon_id": "1727344",
+      "name": "16寄件、发送-线性",
+      "font_class": "jijianfasong-xianxing",
+      "unicode": "e893",
+      "unicode_decimal": 59539
+    },
+    {
+      "icon_id": "18170188",
+      "name": "退出,出",
+      "font_class": "exit-full",
+      "unicode": "e97f",
+      "unicode_decimal": 59775
+    },
+    {
+      "icon_id": "25964444",
+      "name": "设置",
+      "font_class": "shezhi",
+      "unicode": "e663",
+      "unicode_decimal": 58979
+    },
+    {
+      "icon_id": "1090",
+      "name": "图书",
+      "font_class": "tushu",
+      "unicode": "e600",
+      "unicode_decimal": 58880
+    },
+    {
+      "icon_id": "9066293",
+      "name": "收起",
+      "font_class": "shouqi",
+      "unicode": "e688",
+      "unicode_decimal": 59016
+    },
+    {
+      "icon_id": "11592722",
+      "name": "跟进",
+      "font_class": "foller",
+      "unicode": "e601",
+      "unicode_decimal": 58881
+    },
+    {
+      "icon_id": "12082508",
+      "name": "指定",
+      "font_class": "zhiding",
+      "unicode": "e6da",
+      "unicode_decimal": 59098
+    },
+    {
+      "icon_id": "12184891",
+      "name": "附件",
+      "font_class": "fujian",
+      "unicode": "e689",
+      "unicode_decimal": 59017
+    },
+    {
+      "icon_id": "21106041",
+      "name": "网络",
+      "font_class": "wangluo",
+      "unicode": "e625",
+      "unicode_decimal": 58917
+    },
+    {
+      "icon_id": "43700428",
+      "name": "深度思考",
+      "font_class": "shendusikao",
+      "unicode": "e7d3",
+      "unicode_decimal": 59347
+    }
+  ]
+}
