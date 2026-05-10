@@ -1,4 +1,3 @@
-import styles from "./yachiyo.module.css";
 import { SiderBar } from "./components/SiderBar/SiderBar";
 export default function Layout({ children }: { children: React.ReactNode }) {
   return (
@@ -6,7 +5,6 @@ export default function Layout({ children }: { children: React.ReactNode }) {
       <div className="h-screen">
         <SiderBar />
       </div>
-
       <main className="flex-1 flex bg-[#14141f]">{children}</main>
     </div>
   );

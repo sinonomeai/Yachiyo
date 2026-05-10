@@ -30,10 +30,13 @@ export default function RootLayout({
 }) {
   return (
     <html lang="zh-CN">
+      <head>
+        <link rel="preload" href="/iconfont/iconfont.js" as="script" />
+      </head>
       <body
         className={`${pixelFont.variable} ${PressStartFont.variable} ${UpheavalFont.variable}`}>
         {children}
-        <Script src="/iconfont/iconfont.js" />
+        <Script src="/iconfont/iconfont.js" strategy="beforeInteractive" />
       </body>
     </html>
   );

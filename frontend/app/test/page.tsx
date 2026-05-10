@@ -24,12 +24,17 @@ export default function Input() {
   }, []);
 
   return (
-
     <div
       className="custom-scrollbar
         w-[880px] flex flex-col 
         bg-[#1e1e2e] text-[#e0e0ec] 
         border border-[#282840] rounded-[12px]">
+      <div className="w-[50px] h-[50px] overflow-hidden">
+        <img src="/yachiyo.jpg" alt="" className="" />
+      </div>
+      <div className="w-[60px] h-[70px]">
+        <img src="/aiyachiyo.png" alt="" className="w-full" />
+      </div>
       <div className="w-full h-[60px]" ref={fatherRef}>
         <textarea
           className="font-upheaval 

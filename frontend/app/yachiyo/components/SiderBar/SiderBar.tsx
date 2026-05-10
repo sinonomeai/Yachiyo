@@ -2,32 +2,37 @@
 import { SiderLogin } from "../SiderLogin/SiderLogin";
 import { useState, useEffect, useRef } from "react";
 import { Icon } from "@/components/Icon/Icon";
+import { useSiderStore } from "@/state/stores/useSiderStore";
+import styles from "../../yachiyo.module.css";
+import Link from "next/link";
 export const SiderBar = () => {
-  const [isExpanded, setIsExpanded] = useState(true);
+  //展开状态
+  const { isExpanded, setExpanded } = useSiderStore();
+  //根据用户操作判断是否自动搜索
   const [isAutoControl, setIsAutoControl] = useState(true);
   const isExpandedRef = useRef(isExpanded);
   const isAutoControlRef = useRef(isAutoControl);
   isAutoControlRef.current = isAutoControl;
   isExpandedRef.current = isExpanded;
-
+  //按钮切换函数
   const toggleSidebar = () => {
     if (isExpanded) {
       setIsAutoControl(false);
     } else {
       setIsAutoControl(true);
     }
-    setIsExpanded(!isExpanded);
+    setExpanded(!isExpanded);
   };
-
+  // 自动随屏幕收缩
   useEffect(() => {
     const handleResize = () => {
       console.log(isAutoControlRef.current, isExpanded);
       if (!isAutoControlRef.current) return;
       if (window.innerWidth < 1024 && isExpandedRef.current) {
-        setIsExpanded(false);
+        setExpanded(false);
       }
       if (window.innerWidth > 1024 && !isExpandedRef.current) {
-        setIsExpanded(true);
+        setExpanded(true);
       }
     };
 
@@ -37,6 +42,8 @@ export const SiderBar = () => {
 
     return () => window.removeEventListener("resize", handleResize);
   }, []);
+  //开启新对话跳转
+
   return (
     <>
       {/* 侧边栏缩回时悬浮按钮 */}
@@ -47,6 +54,15 @@ export const SiderBar = () => {
         mt-[12px] ml-[16px] 
         h-[40px]
         flex items-center justify-center`}>
+        <div onClick={toggleSidebar} className="cursor-pointer hidden md:block">
+          <img
+            src="/Logo.png"
+            alt="Yachiyo"
+            className="h-[30px] w-auto object-contain 
+            drop-shadow-[0_0_8px_rgba(255,255,255,0.15)]
+            "
+          />
+        </div>
         <div
           onClick={toggleSidebar}
           className="w-[30px] h-[30px] cursor-pointer relative  hover:bg-[#282840] rounded-[4px]">
@@ -57,22 +73,35 @@ export const SiderBar = () => {
           />
         </div>
         <div className="w-[30px] h-[30px] cursor-pointer relative hover:bg-[#282840] rounded-[4px]">
-          <Icon
-            href="#icon-foller"
-            className="text-[25px] 
+          <Link href="/yachiyo">
+            <Icon
+              href="#icon-foller"
+              className="text-[25px] 
           absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 "
-          />
+            />
+          </Link>
         </div>
       </div>
       {/* 侧边栏 */}
       <div
-        className={`${isExpanded ? "w-[260px]" : "w-0"} relative z-20 transition-all duration-400 ease-in-out h-full overflow-hidden bg-[#1a1a2e] border-r border-[#282840] text-[#8a8aa0]`}>
+        className={`${isExpanded ? "w-[260px]" : "w-0"} 
+        md:relative
+        absolute 
+        z-20 text-[#8a8aa0]
+        transition-all duration-400 
+        ease-in-out h-full overflow-hidden 
+        bg-[#1a1a2e] text-[#8a8aa0]
+        border-r border-[#282840]`}>
         <div className="h-full w-full p-[6px_12px_10px] flex flex-col justify-between">
           {/* 侧边栏头部 */}
           <div className="flex justify-between h-[50px] p-[15px_0_10px_4px] mb-[16px]">
-            <p className="font-pixel text-[#e0e0ec] text-[25px] tracking-[8px] relative top-[-4px]">
-              Yachiyo
-            </p>
+            <div className="flex items-center">
+              <img
+                src="/Logo.png"
+                alt="Yachiyo"
+                className="h-[40px] w-auto object-contain drop-shadow-[0_0_8px_rgba(255,255,255,0.15)]"
+              />
+            </div>
             <div
               onClick={toggleSidebar}
               className="w-[34px] h-[34px] cursor-pointer relative hover:bg-[#282840] rounded-[4px]">
@@ -93,17 +122,20 @@ export const SiderBar = () => {
           </div>
           {/* 新对话以及历史记录 */}
           <div className="flex-1 min-h-0 flex flex-col">
-            <div
-              className="truncate
-              h-[42px]  
+            <div className="truncate">
+              <Link
+                className="h-[42px]  
               flex items-center gap-[10px] 
-              mb-[12px]  hover:bg-[#282840] p-[9px_6px_9px_10px] rounded-[12px] cursor-pointer">
-              <p>开启新对话</p>
-              <div>
-                <Icon href="#icon-foller" className="text-[22px] " />
-              </div>
+              mb-[12px]  hover:bg-[#282840] p-[9px_6px_9px_10px] rounded-[12px] cursor-pointer"
+                href="/yachiyo">
+                <p>开启新对话</p>
+                <div>
+                  <Icon href="#icon-foller" className="text-[22px] " />
+                </div>
+              </Link>
             </div>
-            <div className=" flex-1 min-h-0 pt-[12px] border-t ">
+            <div
+              className={`${styles.historyList} flex-1 min-h-0 pt-[12px] border-t`}>
               <ul className="custom-scrollbar h-full pr-[5px] cursor-pointer overflow-y-auto">
                 <li className="truncate p-[9px_6px_9px_10px] rounded-[12px] hover:bg-[#282840]">
                   历史记录一ddddddddddddddddddddddddddddddddddddddddddddddd
@@ -153,6 +185,18 @@ export const SiderBar = () => {
                 <li className="truncate p-[9px_6px_9px_10px] rounded-[12px] hover:bg-[#282840]">
                   历史记录二
                 </li>
+                <li className="truncate p-[9px_6px_9px_10px] rounded-[12px] hover:bg-[#282840]">
+                  历史记录一ddddddddddddddddddddddddddddddddddddddddddddddd
+                </li>
+                <li className="truncate p-[9px_6px_9px_10px] rounded-[12px] hover:bg-[#282840]">
+                  历史记录二
+                </li>
+                <li className="truncate p-[9px_6px_9px_10px] rounded-[12px] hover:bg-[#282840]">
+                  历史记录一ddddddddddddddddddddddddddddddddddddddddddddddd
+                </li>
+                <li className="truncate p-[9px_6px_9px_10px] rounded-[12px] hover:bg-[#282840]">
+                  历史记录二
+                </li>
               </ul>
             </div>
           </div>
@@ -162,6 +206,13 @@ export const SiderBar = () => {
           </div>
         </div>
       </div>
+      {/* 绝对定位时遮罩层 */}
+      {isExpanded && (
+        <div
+          onClick={() => setExpanded(false)}
+          className="md:hidden fixed inset-0 z-10 bg-black/40"
+        />
+      )}
     </>
   );
 };
