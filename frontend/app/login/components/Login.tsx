@@ -9,6 +9,7 @@ import {
   UserOutlined,
 } from "@ant-design/icons";
 import { useRouter } from "next/navigation";
+
 // 定义登录表单的验证规则
 const loginSchema = z.object({
   email: z.email({ message: "请输入有效的邮箱地址" }),
@@ -19,6 +20,7 @@ type LoginFormData = z.infer<typeof loginSchema>;
 // 登录组件
 export const Login = ({ isToggle }: { isToggle: boolean }) => {
   const router = useRouter();
+  
   const {
     register,
     handleSubmit,
@@ -45,6 +47,7 @@ export const Login = ({ isToggle }: { isToggle: boolean }) => {
         // 保存登录信息
         localStorage.setItem("user", JSON.stringify(result.user));
         message.success(result.message || "登录成功");
+         
         // 登录成功后跳转到主页
         router.push("/yachiyo");
       } else {

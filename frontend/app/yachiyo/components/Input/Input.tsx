@@ -4,10 +4,11 @@ import { Button } from "./Button/InputButton";
 interface Input {
   onSubmit?: (e: React.SubmitEvent<HTMLFormElement>) => void;
   status?: string;
+  input: string;
+  setInput: (value: string | ((prevState: string) => string)) => void;
 }
-export const Input = ({ onSubmit, status }: Input) => {
-  const [message, setMessage] = useState("");
-  const disabled = message.length === 0 || message.trim() === "";
+export const Input = ({ onSubmit, status, setInput,input }: Input) => {
+  const disabled = input.length === 0 || input.trim() === "";
   const fatherRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   useEffect(() => {
@@ -29,18 +30,29 @@ export const Input = ({ onSubmit, status }: Input) => {
       textareaRef.current?.removeEventListener("input", handleInput);
     };
   }, []);
-  //
+  //设置输入值
   const inputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    setMessage(e.target.value);
+    setInput(e.target.value);
+  };
+  //enter触发提交
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault(); // 阻止换行
+      if (!disabled && (status === undefined || status === "ready")) {
+        // 触发表单提交
+        const form = e.currentTarget.form;
+        form?.requestSubmit();
+      }
+    }
   };
   return (
-    <form onSubmit={onSubmit}>
-      <div
-        className="custom-scrollbar
+    <div
+      className="custom-scrollbar
         w-full flex flex-col 
         bg-[#1e1e2e] text-[#e0e0ec] 
         border border-[#282840] rounded-[12px]">
-        {/* 输入 */}
+      {/* 输入 */}
+      <form onSubmit={onSubmit}>
         <div className="w-full h-[60px]" ref={fatherRef}>
           <textarea
             className="custom-scrollbar
@@ -53,7 +65,9 @@ export const Input = ({ onSubmit, status }: Input) => {
             rows={2}
             name="message"
             ref={textareaRef}
+            value={input}
             onChange={inputChange}
+            onKeyDown={handleKeyDown}
           />
         </div>
         {/* 底部图标 */}
@@ -70,18 +84,14 @@ export const Input = ({ onSubmit, status }: Input) => {
           </div>
           <div className="flex gap-[4px]">
             <div className="h-[30px] w-[30px] group relative rounded-full flex justify-center items-center cursor-pointer hover:bg-[#282840] transition-colors duration-200">
-              <Button
-                className2="!text-[14px]"
-                href="#icon-zhiding"
-                tip="选择知识库"
-              />
+              <Button className2="!text-[14px]" href="#icon-zhiding" tip="选择知识库" />
             </div>
             <div className="h-[30px] w-[30px] group relative rounded-full flex justify-center items-center cursor-pointer hover:bg-[#282840] transition-colors duration-200">
               <Button href="#icon-fujian" tip="附件" />
             </div>
             <div
               className={`h-[30px] w-[30px] group relative rounded-full 
-            flex justify-center items-center cursor-pointer 
+             cursor-pointer 
             bg-[#3a3a5c] transition-colors duration-200 
             ${disabled ? "opacity-40 cursor-not-allowed" : "hover:bg-[#4e4e78] "} `}>
               <Button
@@ -93,7 +103,7 @@ export const Input = ({ onSubmit, status }: Input) => {
             </div>
           </div>
         </div>
-      </div>
-    </form>
+      </form>
+    </div>
   );
 };

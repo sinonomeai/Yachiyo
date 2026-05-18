@@ -31,7 +31,6 @@ export const Register = ({ isToggle }: { isToggle: boolean }) => {
   //提交注册表单
   const onSubmit = async (data: RegisterSchema) => {
     const newData = {
-      id: Date.now(),
       ...data,
     };
     console.log("注册数据:", newData);

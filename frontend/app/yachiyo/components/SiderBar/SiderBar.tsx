@@ -3,9 +3,13 @@ import { SiderLogin } from "../SiderLogin/SiderLogin";
 import { useState, useEffect, useRef } from "react";
 import { Icon } from "@/components/Icon/Icon";
 import { useSiderStore } from "@/state/stores/useSiderStore";
+import { useListStore } from "@/state/stores/useListStore";
 import styles from "../../yachiyo.module.css";
 import Link from "next/link";
+
 export const SiderBar = () => {
+  //会话列表状态
+  const { sessions, setSessions } = useListStore();
   //展开状态
   const { isExpanded, setExpanded } = useSiderStore();
   //根据用户操作判断是否自动搜索
@@ -42,33 +46,55 @@ export const SiderBar = () => {
 
     return () => window.removeEventListener("resize", handleResize);
   }, []);
-  //开启新对话跳转
+  useEffect(() => {
+    async function getList() {
+      try {
+        const listRes = await fetch("/api/initialData/getList");
+        const listData = await listRes.json();
+
+        if (listData.success && listData.sessions) {
+          const formattedSessions = listData.sessions.map((session: any) => ({
+            id: session.id,
+            title: session.title,
+            createdAt: new Date(session.created_at),
+          }));
+
+          setSessions(formattedSessions);
+          console.log("会话列表已加载:", formattedSessions.length);
+        }
+      } catch (err) {
+        console.error("获取会话列表失败:", err);
+      }
+    }
+    getList();
+  }, []);
 
   return (
     <>
       {/* 侧边栏缩回时悬浮按钮 */}
       <div
-        className={`${isExpanded ? "opacity-0 pointer-events-none " : "opacity-100"} 
-        transition-all duration-1000 ease-in-out  
-        absolute z-10 
-        mt-[12px] ml-[16px] 
+        className={`${isExpanded ? "opacity-0 pointer-events-none " : "opacity-100"}
+        transition-all duration-1000 ease-in-out
+        absolute z-10
+        mt-[12px] ml-[16px]
         h-[40px]
-        flex items-center justify-center`}>
+        flex items-center gap-[12px]`}>
         <div onClick={toggleSidebar} className="cursor-pointer hidden md:block">
           <img
             src="/Logo.png"
             alt="Yachiyo"
-            className="h-[30px] w-auto object-contain 
+            className="h-[30px] w-auto object-contain
             drop-shadow-[0_0_8px_rgba(255,255,255,0.15)]
             "
           />
         </div>
+        <div className="w-[1px] h-[28px] bg-[#4e4e78] hidden md:block" />
         <div
           onClick={toggleSidebar}
           className="w-[30px] h-[30px] cursor-pointer relative  hover:bg-[#282840] rounded-[4px]">
           <Icon
             href="#icon-shouqi"
-            className="rotate-180 text-[30px] 
+            className="rotate-180 text-[30px]
           absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 "
           />
         </div>
@@ -76,7 +102,7 @@ export const SiderBar = () => {
           <Link href="/yachiyo">
             <Icon
               href="#icon-foller"
-              className="text-[25px] 
+              className="text-[25px]
           absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 "
             />
           </Link>
@@ -134,69 +160,15 @@ export const SiderBar = () => {
                 </div>
               </Link>
             </div>
-            <div
-              className={`${styles.historyList} flex-1 min-h-0 pt-[12px] border-t`}>
+            <div className={`${styles.historyList} flex-1 min-h-0 pt-[12px] border-t`}>
               <ul className="custom-scrollbar h-full pr-[5px] cursor-pointer overflow-y-auto">
-                <li className="truncate p-[9px_6px_9px_10px] rounded-[12px] hover:bg-[#282840]">
-                  历史记录一ddddddddddddddddddddddddddddddddddddddddddddddd
-                </li>
-                <li className="truncate p-[9px_6px_9px_10px] rounded-[12px] hover:bg-[#282840]">
-                  历史记录二
-                </li>
-                <li className="truncate p-[9px_6px_9px_10px] rounded-[12px] hover:bg-[#282840]">
-                  历史记录三
-                </li>
-                <li className="truncate p-[9px_6px_9px_10px] rounded-[12px] hover:bg-[#282840]">
-                  历史记录四
-                </li>
-                <li className="truncate p-[9px_6px_9px_10px] rounded-[12px] hover:bg-[#282840]">
-                  历史记录五
-                </li>
-                <li className="truncate p-[9px_6px_9px_10px] rounded-[12px] hover:bg-[#282840]">
-                  历史记录一ddddddddddddddddddddddddddddddddddddddddddddddd
-                </li>
-                <li className="truncate p-[9px_6px_9px_10px] rounded-[12px] hover:bg-[#282840]">
-                  历史记录二
-                </li>
-                <li className="truncate p-[9px_6px_9px_10px] rounded-[12px] hover:bg-[#282840]">
-                  历史记录四
-                </li>
-                <li className="truncate p-[9px_6px_9px_10px] rounded-[12px] hover:bg-[#282840]">
-                  历史记录五
-                </li>
-                <li className="truncate p-[9px_6px_9px_10px] rounded-[12px] hover:bg-[#282840]">
-                  历史记录一ddddddddddddddddddddddddddddddddddddddddddddddd
-                </li>
-                <li className="truncate p-[9px_6px_9px_10px] rounded-[12px] hover:bg-[#282840]">
-                  历史记录二
-                </li>
-                <li className="truncate p-[9px_6px_9px_10px] rounded-[12px] hover:bg-[#282840]">
-                  历史记录五
-                </li>
-                <li className="truncate p-[9px_6px_9px_10px] rounded-[12px] hover:bg-[#282840]">
-                  历史记录一ddddddddddddddddddddddddddddddddddddddddddddddd
-                </li>
-                <li className="truncate p-[9px_6px_9px_10px] rounded-[12px] hover:bg-[#282840]">
-                  历史记录二
-                </li>
-                <li className="truncate p-[9px_6px_9px_10px] rounded-[12px] hover:bg-[#282840]">
-                  历史记录一ddddddddddddddddddddddddddddddddddddddddddddddd
-                </li>
-                <li className="truncate p-[9px_6px_9px_10px] rounded-[12px] hover:bg-[#282840]">
-                  历史记录二
-                </li>
-                <li className="truncate p-[9px_6px_9px_10px] rounded-[12px] hover:bg-[#282840]">
-                  历史记录一ddddddddddddddddddddddddddddddddddddddddddddddd
-                </li>
-                <li className="truncate p-[9px_6px_9px_10px] rounded-[12px] hover:bg-[#282840]">
-                  历史记录二
-                </li>
-                <li className="truncate p-[9px_6px_9px_10px] rounded-[12px] hover:bg-[#282840]">
-                  历史记录一ddddddddddddddddddddddddddddddddddddddddddddddd
-                </li>
-                <li className="truncate p-[9px_6px_9px_10px] rounded-[12px] hover:bg-[#282840]">
-                  历史记录二
-                </li>
+                {sessions.map((session) => (
+                  <Link key={session.id} href={`/yachiyo/${session.id}`}>
+                    <li className="truncate p-[9px_6px_9px_10px] rounded-[12px] hover:bg-[#282840]">
+                      {session.title}
+                    </li>
+                  </Link>
+                ))}
               </ul>
             </div>
           </div>

@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Script from "next/script";
 import localFont from "next/font/local";
 import "./globals.css";
-
+import { Providers } from "./providers";
 const pixelFont = localFont({
   src: [
     { path: "../public/font/Pixel Digivolve.otf", weight: "400" },
@@ -23,19 +23,22 @@ export const metadata: Metadata = {
   description: "Yachiyo天下第一",
 };
 
+
+
 export default function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
   return (
-    <html lang="zh-CN">
+    <html lang="zh-CN" suppressHydrationWarning>
       <head>
         <link rel="preload" href="/iconfont/iconfont.js" as="script" />
       </head>
-      <body
-        className={`${pixelFont.variable} ${PressStartFont.variable} ${UpheavalFont.variable}`}>
-        {children}
+      <body className={`${pixelFont.variable} ${PressStartFont.variable} ${UpheavalFont.variable}`}>
+        <Providers>
+          {children}
+        </Providers>
         <Script src="/iconfont/iconfont.js" strategy="beforeInteractive" />
       </body>
     </html>

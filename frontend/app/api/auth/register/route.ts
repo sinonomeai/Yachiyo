@@ -1,42 +1,40 @@
-import { NextResponse } from "next/server";
-export async function POST(request: Request) {
+import { NextResponse, NextRequest } from "next/server";
+import jwt from "jsonwebtoken";
+import bcrypt from "bcryptjs";
+import { cookies } from "next/headers";
+import pool from "@/lib/db";
+
+export async function POST(request: NextRequest) {
   try {
-    const { id,username, email, password } = await request.json();
-    const response = await fetch(`http://localhost:3001/users?email=${email}`);
-    if (!response.ok) {
-      return NextResponse.json(
-        { success: false, message: "无法连接到用户数据库" },
-        { status: 500 },
-      );
-    }
-    const users = await response.json();
-    if (users.length > 0) {
+    const { username, email, password } = await request.json();
+
+    const existing = await pool.query("SELECT id FROM users WHERE email = $1", [
+      email,
+    ]);
+
+    if (existing.rows.length > 0) {
       return NextResponse.json(
         { success: false, message: "用户已存在" },
         { status: 400 },
       );
     }
-    const newUser = {
-      id:id,
-      username:username,
-      email:email,
-      password:password,
-    };
-    const createResponse = await fetch(`http://localhost:3001/users`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(newUser),
-    });
-    if (!createResponse.ok) {
-      return NextResponse.json(
-        { success: false, message: "创建用户失败" },
-        { status: 500 },
-      );
-    }
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    await pool.query(
+      `INSERT INTO users (username, email, password_hash)
+       VALUES ($1, $2, $3)
+       RETURNING id, username, email, created_at`,
+      [username, email, hashedPassword],
+    );
+
+
     return NextResponse.json(
-      { success: true, message: "注册成功" },
+      {
+        success: true,
+        message: "注册成功",
+        user: { username, email },
+      },
       { status: 201 },
     );
   } catch (error) {
