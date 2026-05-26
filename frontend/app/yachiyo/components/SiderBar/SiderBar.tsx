@@ -1,15 +1,29 @@
 "use client";
-import { SiderLogin } from "../SiderLogin/SiderLogin";
-import { useState, useEffect, useRef } from "react";
+import { SiderLogin } from "./components/SiderLogin/SiderLogin";
+import { useState, useEffect, useRef, useLayoutEffect } from "react";
 import { Icon } from "@/components/Icon/Icon";
 import { useSiderStore } from "@/state/stores/useSiderStore";
-import { useListStore } from "@/state/stores/useListStore";
+import { useModStore } from "@/state/stores/useModStore";
+import { useSessions } from "@/hooks/useSessionsData";
+import { useDocBases } from "@/hooks/useDocBasesData";
+import { List } from "./components/List/List";
 import styles from "../../yachiyo.module.css";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 
 export const SiderBar = () => {
+  //ai对话或知识库模式状态
+  const { isChat, setIsChat } = useModStore();
+  const { data: docBases } = useDocBases();
+  const pathname = usePathname();
+
+  useLayoutEffect(() => {
+    if (!pathname.startsWith("/yachiyo/docbase")) {
+      setIsChat(true);
+    }
+  }, [pathname]);
   //会话列表状态
-  const { sessions, setSessions } = useListStore();
+  const { data: sessions = [] } = useSessions();
   //展开状态
   const { isExpanded, setExpanded } = useSiderStore();
   //根据用户操作判断是否自动搜索
@@ -45,28 +59,6 @@ export const SiderBar = () => {
     window.addEventListener("resize", handleResize);
 
     return () => window.removeEventListener("resize", handleResize);
-  }, []);
-  useEffect(() => {
-    async function getList() {
-      try {
-        const listRes = await fetch("/api/initialData/getList");
-        const listData = await listRes.json();
-
-        if (listData.success && listData.sessions) {
-          const formattedSessions = listData.sessions.map((session: any) => ({
-            id: session.id,
-            title: session.title,
-            createdAt: new Date(session.created_at),
-          }));
-
-          setSessions(formattedSessions);
-          console.log("会话列表已加载:", formattedSessions.length);
-        }
-      } catch (err) {
-        console.error("获取会话列表失败:", err);
-      }
-    }
-    getList();
   }, []);
 
   return (
@@ -138,38 +130,40 @@ export const SiderBar = () => {
             </div>
           </div>
           {/* 个人知识库 */}
-          <div
-            className="truncate h-[42px] flex items-center gap-[10px] 
-            mt-[20px] hover:bg-[#282840] p-[9px_6px_9px_10px] rounded-[12px] cursor-pointer">
-            <span>个人知识库</span>
-            <div>
-              <Icon href="#icon-tushu" className="text-[22px] " />
-            </div>
-          </div>
-          {/* 新对话以及历史记录 */}
-          <div className="flex-1 min-h-0 flex flex-col">
+          <div className="h-[84px] mb-[12px]">
+            <Link
+              onClick={() => setIsChat(false)}
+              href="/yachiyo/docbase"
+              className="truncate h-[42px] flex items-center gap-[10px]
+              hover:bg-[#282840] p-[9px_6px_9px_10px] rounded-[12px] cursor-pointer">
+              <span>个人知识库</span>
+              <div>
+                <Icon href="#icon-tushu" className="text-[22px] " />
+              </div>
+            </Link>
             <div className="truncate">
               <Link
+                onClick={() => setIsChat(true)}
+                href="/yachiyo"
                 className="h-[42px]  
-              flex items-center gap-[10px] 
-              mb-[12px]  hover:bg-[#282840] p-[9px_6px_9px_10px] rounded-[12px] cursor-pointer"
-                href="/yachiyo">
+                flex items-center gap-[10px] 
+                hover:bg-[#282840] p-[9px_6px_9px_10px] rounded-[12px] cursor-pointer">
                 <p>开启新对话</p>
                 <div>
                   <Icon href="#icon-foller" className="text-[22px] " />
                 </div>
               </Link>
             </div>
+          </div>
+
+          {/* 历史记录 */}
+          <div className="flex-1 min-h-0 flex flex-col">
             <div className={`${styles.historyList} flex-1 min-h-0 pt-[12px] border-t`}>
-              <ul className="custom-scrollbar h-full pr-[5px] cursor-pointer overflow-y-auto">
-                {sessions.map((session) => (
-                  <Link key={session.id} href={`/yachiyo/${session.id}`}>
-                    <li className="truncate p-[9px_6px_9px_10px] rounded-[12px] hover:bg-[#282840]">
-                      {session.title}
-                    </li>
-                  </Link>
-                ))}
-              </ul>
+              {isChat ? (
+                <List isChat={true} listData={sessions ?? []} />
+              ) : (
+                <List isChat={false} listData={docBases ?? []} />
+              )}
             </div>
           </div>
           {/* 侧边栏底部登录设置等按钮 */}

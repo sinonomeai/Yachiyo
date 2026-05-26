@@ -1,5 +1,5 @@
 import { Pool } from "pg";
-
+//创建一个可复用的数据库连接池，在整个应用中共享，避免每次查询都创建新连接。
 const pool = new Pool({
   host: process.env.DB_HOST || "localhost",
   port: parseInt(process.env.DB_PORT || "5432"),

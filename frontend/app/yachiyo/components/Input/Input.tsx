@@ -1,16 +1,25 @@
 "use client";
 import { useState, useEffect, useRef } from "react";
-import { Button } from "./Button/InputButton";
+import { Button } from "./components/Button/InputButton";
+import { KnowledgeModal } from "./components/KnowledgeModal/KnowledgeModal";
+import { useKnowledgeStore } from "@/state/stores/useKnowledgeStore";
+import { useDeepThinkingStore } from "@/state/stores/useDeepThinkingStore";
+import { useWebSearchingStore } from "@/state/stores/useWebSearchingStore";
 interface Input {
   onSubmit?: (e: React.SubmitEvent<HTMLFormElement>) => void;
   status?: string;
   input: string;
   setInput: (value: string | ((prevState: string) => string)) => void;
 }
-export const Input = ({ onSubmit, status, setInput,input }: Input) => {
+export const Input = ({ onSubmit, status, setInput, input }: Input) => {
   const disabled = input.length === 0 || input.trim() === "";
   const fatherRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const [modalOpen, setModalOpen] = useState(false);
+  const { selectedDocumentIds } = useKnowledgeStore();
+  const { deepThinking, setThinkingMod } = useDeepThinkingStore();
+  const { webSearching, setSearchingMod } = useWebSearchingStore();
+  const hasSelection = selectedDocumentIds.length > 0;
   useEffect(() => {
     const father = fatherRef.current;
     const textarea = textareaRef.current;
@@ -73,21 +82,41 @@ export const Input = ({ onSubmit, status, setInput,input }: Input) => {
         {/* 底部图标 */}
         <div className="h-[58px] p-[16px] flex justify-between gap-[4px]">
           <div className="flex gap-[4px]">
-            <div className="h-[30px] px-[10px] group relative rounded-full flex justify-center items-center gap-[4px] cursor-pointer hover:bg-[#282840] transition-colors duration-200">
-              <Button href="#icon-wangluo" tip="按需搜索网页" />
+            <div
+              className={`h-[30px] pr-[10px] group relative rounded-full
+            flex justify-center items-center gap-[4px] cursor-pointer
+            transition-colors duration-200 ${
+              webSearching ? "bg-[#5b8def]/15 text-[#5b8def]" : "hover:bg-[#282840]"
+            }`}
+              onClick={() => setSearchingMod(!webSearching)}>
+              <Button href="#icon-wangluo" tip="按需搜索网页" type="button" />
               <p className="text-[#8a8aa0] text-xs">智能搜索</p>
             </div>
-            <div className="h-[30px] px-[10px] group relative rounded-full flex justify-center items-center gap-[4px] cursor-pointer hover:bg-[#282840] transition-colors duration-200">
-              <Button href="#icon-shendusikao" tip="先思考后回答" />
+            <div
+              className={`h-[30px] pr-[10px] group relative rounded-full
+            flex justify-center items-center gap-[4px] cursor-pointer
+            transition-colors duration-200 ${
+              deepThinking ? "bg-[#5b8def]/15 text-[#5b8def]" : "hover:bg-[#282840]"
+            }`}
+              onClick={() => setThinkingMod(!deepThinking)}>
+              <Button href="#icon-shendusikao" tip="先思考后回答" type="button" />
               <p className="text-[#8a8aa0] text-xs">深度思考</p>
             </div>
           </div>
           <div className="flex gap-[4px]">
-            <div className="h-[30px] w-[30px] group relative rounded-full flex justify-center items-center cursor-pointer hover:bg-[#282840] transition-colors duration-200">
-              <Button className2="!text-[14px]" href="#icon-zhiding" tip="选择知识库" />
+            <div
+              className={`h-[30px] w-[30px] group relative rounded-full flex justify-center items-center cursor-pointer transition-colors duration-200 
+                ${hasSelection ? "bg-[#5b8def]/15 text-[#5b8def]" : "hover:bg-[#282840] text-[#8a8aa0]"}`}
+              onClick={() => setModalOpen(true)}>
+              <Button
+                className2="!text-[14px]"
+                href="#icon-zhiding"
+                tip={hasSelection ? `已选 ${selectedDocumentIds.length} 个文档` : "选择知识库"}
+                type="button"
+              />
             </div>
             <div className="h-[30px] w-[30px] group relative rounded-full flex justify-center items-center cursor-pointer hover:bg-[#282840] transition-colors duration-200">
-              <Button href="#icon-fujian" tip="附件" />
+              <Button href="#icon-fujian" tip="附件" type="button" />
             </div>
             <div
               className={`h-[30px] w-[30px] group relative rounded-full 
@@ -99,11 +128,13 @@ export const Input = ({ onSubmit, status, setInput,input }: Input) => {
                 href="#icon-jijianfasong-xianxing"
                 tip={disabled ? "请输入消息" : "发送"}
                 disabled={disabled || status !== "ready"}
+                type="submit"
               />
             </div>
           </div>
         </div>
       </form>
+      <KnowledgeModal open={modalOpen} onClose={() => setModalOpen(false)} />
     </div>
   );
 };

@@ -20,7 +20,13 @@ const registerSchema = z
   });
 type RegisterSchema = z.infer<typeof registerSchema>;
 // 注册组件
-export const Register = ({ isToggle }: { isToggle: boolean }) => {
+export const Register = ({
+  isToggle,
+  changeForm,
+}: {
+  isToggle: boolean;
+  changeForm: (e?: React.MouseEvent<HTMLButtonElement>) => void;
+}) => {
   const {
     register,
     handleSubmit,
@@ -45,6 +51,7 @@ export const Register = ({ isToggle }: { isToggle: boolean }) => {
       const result = await response.json();
 
       if (result.success) {
+        changeForm()
         message.success(result.message || "注册成功");
       } else {
         message.error(result.message || "注册失败");
@@ -60,41 +67,26 @@ export const Register = ({ isToggle }: { isToggle: boolean }) => {
       <form onSubmit={handleSubmit(onSubmit)}>
         <p className={`${styles.title}`}>创建账号</p>
         <div className="flex flex-col">
-          <Input
-            type="text"
-            placeholder="Username"
-            label="用户名"
-            {...register("username")}>
+          <Input type="text" placeholder="Username" label="用户名" {...register("username")}>
             <UserOutlined />
           </Input>
-          <p
-            className={`${styles.error} ${errors.username ? "visible" : "invisible"}`}>
+          <p className={`${styles.error} ${errors.username ? "visible" : "invisible"}`}>
             {errors.username?.message || ""}
           </p>
         </div>
         <div className="flex flex-col">
-          <Input
-            type="email"
-            placeholder="Email"
-            label="电子邮件"
-            {...register("email")}>
+          <Input type="email" placeholder="Email" label="电子邮件" {...register("email")}>
             <UserOutlined />
           </Input>
-          <p
-            className={`${styles.error} ${errors.email ? "visible" : "invisible"}`}>
+          <p className={`${styles.error} ${errors.email ? "visible" : "invisible"}`}>
             {errors.email?.message || ""}
           </p>
         </div>
         <div className="flex flex-col">
-          <Input
-            type="password"
-            placeholder="Password"
-            label="密码"
-            {...register("password")}>
+          <Input type="password" placeholder="Password" label="密码" {...register("password")}>
             <UserOutlined />
           </Input>
-          <p
-            className={`${styles.error} ${errors.password ? "visible" : "invisible"}`}>
+          <p className={`${styles.error} ${errors.password ? "visible" : "invisible"}`}>
             {errors.password?.message || ""}
           </p>
         </div>
@@ -106,15 +98,11 @@ export const Register = ({ isToggle }: { isToggle: boolean }) => {
             {...register("confirmPassword")}>
             <UserOutlined />
           </Input>
-          <p
-            className={`${styles.error} ${errors.confirmPassword ? "visible" : "invisible"}`}>
+          <p className={`${styles.error} ${errors.confirmPassword ? "visible" : "invisible"}`}>
             {errors.confirmPassword?.message || ""}
           </p>
         </div>
-        <Button
-          type="submit"
-          disabled={isSubmitting}
-          className={`${styles.button} mt-[20px]`}>
+        <Button type="submit" disabled={isSubmitting} className={`${styles.button} mt-[20px]`}>
           {isSubmitting ? "Signing up..." : "SIGN UP"}
         </Button>
       </form>

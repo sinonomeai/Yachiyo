@@ -1,12 +1,11 @@
 import { useQuery } from "@tanstack/react-query";
-import { loadHistory } from "@/app/api/chat/messages/route";
-
+import { loadHistory } from "@/lib/chat-session";
+//根据会话id缓存对应会话消息
 export const useMessages = ({ sessionId }: { sessionId: string }) => {
   return useQuery({
     queryKey: ["session", sessionId],
     queryFn: async () => {
-      const res = await loadHistory({ sessionId });
-      const data = await res.json();
+      const data = await loadHistory({ sessionId });
       if (!data.success) return { title: null, messages: [] };
       return {
         title: data.session?.title ?? null,

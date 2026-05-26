@@ -1,55 +1,94 @@
 "use client";
+
 import { useEffect, useRef } from "react";
+import gsap from "gsap";
+
 export default function Input() {
-  const fatherRef = useRef<HTMLDivElement>(null);
-  const textareaRef = useRef<HTMLTextAreaElement>(null);
-  useEffect(() => {
-    const father = fatherRef.current;
-    const textarea = textareaRef.current;
-    //防御性检查防止组件未挂载、挂载后Ref未绑定或者卸载后报错
-    if (!father || !textarea) {
-      console.warn("Input component: fatherRef or textareaRef not found");
-      return;
+  const col = 15;
+  const row = 10;
+  const containerRef = useRef(null);
+
+  // 生成二维数组
+  const hexagons = [];
+  for (let i = 0; i < row; i++) {
+    const rowHexagons = [];
+    for (let j = 0; j < col; j++) {
+      rowHexagons.push({
+        id: `${i}-${j}`,
+        x: i % 2 ? 86.5 * j * 1.5 : 86.5 * j * 1.5 + 64.95,
+        y: 75 * i * 1.5,
+      });
     }
-    const handleInput = () => {
-      textarea.style.height = "auto";
-      const newHeight = Math.min(textarea.scrollHeight, 300);
-      textarea.style.height = newHeight + "px";
-      father.style.height = newHeight + "px";
-    };
-    textareaRef.current?.addEventListener("input", handleInput);
+    hexagons.push(rowHexagons);
+  }
+
+  useEffect(() => {
+    // 创建 GSAP Timeline
+    const tl = gsap.timeline();
+
+    // 初始状态：所有六边形不可见
+    gsap.set(".hexagon-use", {
+      strokeDashoffset: () => {
+        return Math.random() > 0.5 ? -100 : 100;
+      },
+      strokeOpacity: 0,
+      transformOrigin: "50% 50%", // 设置变换原点为中心
+    });
+
+    // Timeline 动画序列
+    tl.to(".hexagon-use", {
+      strokeOpacity: 1,
+      duration: 0.5,
+      ease: "power4.out",
+      stagger: {
+        from: "random",
+        each: 0.004,
+      },
+    }).to(".hexagon-use", {
+      scale: 0,
+      opacity: 0,
+      duration: 1,
+      ease: "power4.out",
+      stagger: {
+        from: "center",
+        each: 0.004, 
+      },
+    });
+
     return () => {
-      textareaRef.current?.removeEventListener("input", handleInput);
+      tl.kill(); 
     };
   }, []);
 
   return (
     <div
-      className="custom-scrollbar
-        w-[880px] flex flex-col 
-        bg-[#1e1e2e] text-[#e0e0ec] 
-        border border-[#282840] rounded-[12px]">
-      <div className="w-[50px] h-[50px] overflow-hidden">
-        <img src="/yachiyo.jpg" alt="" className="" />
-      </div>
-      <div className="w-[60px] h-[70px]">
-        <img src="/aiyachiyo.png" alt="" className="w-full" />
-      </div>
-      <div className="w-full h-[60px]" ref={fatherRef}>
-        <textarea
-          className="font-upheaval 
-            w-full h-full resize-none outline-none
-            p-[12px_12px_0_16px]
-            placeholder:text-[#8a8aa0]"
-          aria-label="输入消息"
-          placeholder="与yachiyo建立链接"
-          rows={2}
-          name="message"
-          ref={textareaRef}
-        />
-      </div>
+      ref={containerRef}
+      className="flex justify-center items-center 
+   w-full h-screen
+   bg-[#000] overflow-hidden">
+      <svg className="absolute w-full h-full" viewBox="442 -20 1000 1000">
+        <defs>
+          <polygon
+            id="loading_hexagon"
+            points="0,-75 64.95,-37.5 64.95,37.5 0,75 -64.95,37.5 -64.95,-37.5"
+            fill="#171717"
+          />
+        </defs>
 
-      <div className="h-[58px] p-[16px]">1111</div>
+        {hexagons.map((row, i) => (
+          <g key={`row-${i}`}>
+            {row.map(({ id, x, y }) => (
+              <g key={id} transform={`translate(${x},${y})`}>
+                <use
+                  className="hexagon-use
+                  stroke-[#17f700] stroke-[0.8px]"
+                  href="#loading_hexagon"
+                />
+              </g>
+            ))}
+          </g>
+        ))}
+      </svg>
     </div>
   );
 }

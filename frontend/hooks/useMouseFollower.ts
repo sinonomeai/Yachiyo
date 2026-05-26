@@ -6,6 +6,7 @@ interface Options {
   attract?: number; //吸引力
   maxScale?: number; //最大缩放
 }
+//登录页图片悬浮跟随
 export const useMouseFollower = (options: Options = {}) => {
   //依赖项
   const {

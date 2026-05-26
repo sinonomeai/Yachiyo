@@ -1,12 +1,11 @@
 import styles from "../page.module.css";
-import { useEffect } from "react";
 import { Button } from "@/components/Button/Button";
 import { useMouseFollower } from "@/hooks/useMouseFollower";
 
 interface SwitchBoxProps {
   isChangeForm: boolean;
   isToggle: boolean;
-  changeForm: (e: React.MouseEvent<HTMLButtonElement>) => void;
+  changeForm: (e?: React.MouseEvent<HTMLButtonElement>) => void;
 }
 
 export const SwitchBox = ({
@@ -14,9 +13,7 @@ export const SwitchBox = ({
   isToggle,
   changeForm,
 }: SwitchBoxProps) => {
-  useEffect(() => {
-    console.log("SwitchBox组件渲染了");
-  }, []);
+ 
   const loginFollower = useMouseFollower();
   const registerFollower = useMouseFollower();
 

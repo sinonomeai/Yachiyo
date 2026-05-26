@@ -2,47 +2,31 @@
 import { useState } from "react";
 import { Input } from "./components/Input/Input";
 import { useRouter } from "next/navigation";
-import { message } from "antd";
-import { useListStore } from "@/state/stores/useListStore";
+import { useAddSession } from "@/hooks/useSessionsData";
 export default function Dashboard() {
   const router = useRouter();
-  const {addSession} = useListStore()
+  const { mutate: addSession } = useAddSession();
   const [input, setInput] = useState("");
   const onSubmit = async (e: React.SubmitEvent<HTMLFormElement>) => {
     e.preventDefault();
-
+    if (input.trim() === "") return;
     const messageSend = input;
     setInput("");
 
     //  前端生成 sessionId，立即跳转
     const sessionId = crypto.randomUUID();
-    const createdAt = new Date()
+    const createdAt = new Date();
     const encodedMessage = encodeURIComponent(messageSend);
     addSession({
-      id: sessionId,
-      title: "新对话",
-      createdAt: createdAt,
+      session: {
+        id: sessionId,
+        title: "新对话",
+        createdAt: createdAt,
+      },
+      firstMessage: messageSend,
     });
     // 立即跳转，不等待后端
-    router.push(`/yachiyo/${sessionId}?initialMessage=${encodedMessage}`);
-
-    // 后台异步创建会话（不阻塞跳转）
-    try {
-      await fetch("/api/chat/init", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          sessionId,
-          firstMessage: messageSend,
-          createdAt: createdAt.toISOString(),
-        }),
-      });
-    } catch (error) {
-      console.error("后台创建会话失败:", error);
-      message.error("会话创建失败，请重试");
-    }
+    router.push(`/yachiyo/chat/${sessionId}?initialMessage=${encodedMessage}`);
   };
   return (
     <div className="w-full h-full flex flex-col">

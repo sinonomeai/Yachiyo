@@ -5,7 +5,12 @@ export default function Layout({ children }: { children: React.ReactNode }) {
       <div className="h-screen">
         <SiderBar />
       </div>
-      <main className="flex-1 flex bg-[#14141f]">{children}</main>
+      <main className="flex-1 flex bg-[#14141f]">
+       
+          
+            {children}
+         
+      </main>
     </div>
   );
 }

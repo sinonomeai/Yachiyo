@@ -52,3 +52,67 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: "服务器内部错误" }, { status: 500 });
   }
 }
+
+export async function PUT(req: NextRequest) {
+  const token = req.cookies.get("auth_token")?.value as string;
+  let userId: string;
+
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET!) as {
+      userId: string;
+    };
+    userId = decoded.userId;
+  } catch {
+    return NextResponse.json({ error: "token 无效或已过期" }, { status: 401 });
+  }
+
+  const { sessionId, title } = await req.json();
+
+  if (!sessionId || !title?.trim()) {
+    return NextResponse.json({ error: "缺少参数" }, { status: 400 });
+  }
+
+  try {
+    await pool.query(
+      `UPDATE chat_sessions SET title = $1, updated_at = CURRENT_TIMESTAMP
+       WHERE id = $2 AND user_id = $3`,
+      [title.trim(), sessionId, userId],
+    );
+
+    return NextResponse.json({ success: true });
+  } catch (error) {
+    console.error("重命名会话失败:", error);
+    return NextResponse.json({ error: "服务器内部错误" }, { status: 500 });
+  }
+}
+
+export async function DELETE(req: NextRequest) {
+  const token = req.cookies.get("auth_token")?.value as string;
+  let userId: string;
+
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET!) as {
+      userId: string;
+    };
+    userId = decoded.userId;
+  } catch {
+    return NextResponse.json({ error: "token 无效或已过期" }, { status: 401 });
+  }
+
+  const sessionId = req.nextUrl.searchParams.get("sessionId");
+  if (!sessionId) {
+    return NextResponse.json({ error: "缺少 sessionId" }, { status: 400 });
+  }
+
+  try {
+    await pool.query(
+      `DELETE FROM chat_sessions WHERE id = $1 AND user_id = $2`,
+      [sessionId, userId],
+    );
+
+    return NextResponse.json({ success: true });
+  } catch (error) {
+    console.error("删除会话失败:", error);
+    return NextResponse.json({ error: "服务器内部错误" }, { status: 500 });
+  }
+}
