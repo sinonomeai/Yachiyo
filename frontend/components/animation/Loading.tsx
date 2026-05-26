@@ -32,10 +32,11 @@ export const Loading = ({ onComplete }: { onComplete?: () => void }) => {
     });
 
     tl.to(".hexagon-use", {
+      strokeDashoffset: 0,
       strokeOpacity: 1,
       duration: 0.5,
-      ease: "power4.out",
-      stagger: { from: "random", each: 0.004 },
+      ease: "bounce.out",
+      stagger: { from: "random", each: 0.002 },
     }).to(".hexagon-use", {
       scale: 0,
       opacity: 0,
@@ -43,15 +44,13 @@ export const Loading = ({ onComplete }: { onComplete?: () => void }) => {
       ease: "power4.out",
       stagger: { from: "center", each: 0.004 },
       onStart: () => {
-        // 六边形消失动画开始时，背景同步逐渐变透明
         gsap.to(containerRef.current, {
-          backgroundColor: "rgba(0, 0, 0, 0)",
+          backgroundColor: "rgba(20, 20, 31, 0)",
           duration: 1,
           ease: "power4.out",
         });
       },
       onComplete: () => {
-        // 动画结束，立即卸载组件
         setIsVisible(false);
         onComplete?.();
       },
@@ -67,14 +66,14 @@ export const Loading = ({ onComplete }: { onComplete?: () => void }) => {
   return (
     <div
       ref={containerRef}
-      className="fixed inset-0 z-50 bg-black"
-      style={{ transition: "background-color 1s ease-out" }}>
+      className="fixed inset-0 z-50"
+      style={{ backgroundColor: "#14141f" }}>
       <svg className="w-full h-full" viewBox="442 -20 1000 1000">
         <defs>
           <polygon
             id="loading_hexagon"
             points="0,-75 64.95,-37.5 64.95,37.5 0,75 -64.95,37.5 -64.95,-37.5"
-            fill="#171717"
+            fill="#1a1a2e"
           />
         </defs>
         {hexagons.map((row, i) => (
@@ -83,7 +82,7 @@ export const Loading = ({ onComplete }: { onComplete?: () => void }) => {
               <g key={id} transform={`translate(${x},${y})`}>
                 <use
                   className="hexagon-use
-                  stroke-[#17f700] stroke-[0.8px]"
+                  stroke-[#5b8def] stroke-[0.8px]"
                   href="#loading_hexagon"
                 />
               </g>

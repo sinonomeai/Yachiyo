@@ -9,18 +9,13 @@ interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
 }
 
 export const Input = forwardRef<HTMLInputElement, InputProps>(
-  (
-    { label, type = "text", placeholder, children, className = "", ...props },
-    ref,
-  ) => {
+  ({ label, type = "text", placeholder, children, className = "", ...props }, ref) => {
     const passwordType = type === "password";
     const [showPassword, setShowPassword] = useState(false);
     const actualType = passwordType && showPassword ? "text" : type;
     return (
       <div className="flex flex-col">
-        {label && (
-          <label className="text-[#c8c8d8] text-[13px] mb-1">{label}</label>
-        )}
+        {label && <label className="text-[#c8c8d8] text-[13px] mb-1">{label}</label>}
 
         <div
           className={`

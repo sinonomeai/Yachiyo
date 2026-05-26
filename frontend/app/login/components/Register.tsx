@@ -9,9 +9,15 @@ import { UserOutlined } from "@ant-design/icons";
 // 定义注册表单的验证规则
 const registerSchema = z
   .object({
-    username: z.string().min(1, { message: "用户名至少需要1个字符" }),
+    username: z
+      .string()
+      .min(1, { message: "用户名至少需要1个字符" })
+      .max(10, { message: "用户名最多10个字符" }),
     email: z.email({ message: "请输入有效的邮箱地址" }),
-    password: z.string().min(6, { message: "密码至少需要6个字符" }),
+    password: z
+      .string()
+      .min(6, { message: "密码至少需要6个字符" })
+      .max(10, { message: "密码最多10个字符" }),
     confirmPassword: z.string(),
   })
   .refine((data) => data.password === data.confirmPassword, {
@@ -51,7 +57,7 @@ export const Register = ({
       const result = await response.json();
 
       if (result.success) {
-        changeForm()
+        changeForm();
         message.success(result.message || "注册成功");
       } else {
         message.error(result.message || "注册失败");
@@ -67,7 +73,12 @@ export const Register = ({
       <form onSubmit={handleSubmit(onSubmit)}>
         <p className={`${styles.title}`}>创建账号</p>
         <div className="flex flex-col">
-          <Input type="text" placeholder="Username" label="用户名" {...register("username")}>
+          <Input
+            type="text"
+            placeholder="Username"
+            label="用户名"
+            maxLength={10}
+            {...register("username")}>
             <UserOutlined />
           </Input>
           <p className={`${styles.error} ${errors.username ? "visible" : "invisible"}`}>
@@ -83,7 +94,12 @@ export const Register = ({
           </p>
         </div>
         <div className="flex flex-col">
-          <Input type="password" placeholder="Password" label="密码" {...register("password")}>
+          <Input
+            type="password"
+            placeholder="Password"
+            label="密码"
+            maxLength={10}
+            {...register("password")}>
             <UserOutlined />
           </Input>
           <p className={`${styles.error} ${errors.password ? "visible" : "invisible"}`}>
@@ -95,6 +111,7 @@ export const Register = ({
             type="password"
             placeholder="ConfirmPassword"
             label="确认密码"
+            maxLength={10}
             {...register("confirmPassword")}>
             <UserOutlined />
           </Input>

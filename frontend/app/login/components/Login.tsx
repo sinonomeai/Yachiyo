@@ -68,6 +68,7 @@ export const Login = ({ isToggle }: { isToggle: boolean }) => {
             type="email"
             placeholder="Email"
             label="电子邮件"
+            
             {...register("email")}>
             <UserOutlined></UserOutlined>
           </Input>
