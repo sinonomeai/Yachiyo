@@ -34,11 +34,9 @@ export default function Dashboard() {
       <div className="w-full h-full flex flex-col justify-center items-center">
         <div
           className="lg:w-full lg:max-w-[840px] lg:min-w-[762px] sm:max-w-[712px] sm:min-w-[492px] h-full min-h-[320px] p-[0_32px_64px]
-          flex flex-col justify-center items-center gap-[10px]">
-          <h1 className="font-press-start text-[35px]">YACHIYO</h1>
-          <p className="text-[25px] px-[5px] break-all">
-            Start a conversation and enter Tsukuyomi with Yachiyo
-          </p>
+          flex flex-col justify-center items-center gap-[20px]">
+          <h1 className="font-press-start text-[40px]">YACHIYO</h1>
+          <p className="text-[25px] px-[5px] break-all">Yaoyo~神明大人今天想聊点什么呢？</p>
           <Input onSubmit={onSubmit} input={input} setInput={setInput} />
         </div>
       </div>

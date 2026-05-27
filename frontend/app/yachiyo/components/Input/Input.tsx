@@ -65,7 +65,6 @@ export const Input = ({ onSubmit, status, setInput, input }: Input) => {
         <div className="w-full h-[60px]" ref={fatherRef}>
           <textarea
             className="custom-scrollbar
-          font-upheaval 
             w-full h-full resize-none outline-none
             p-[12px_12px_0_16px]
             placeholder:text-[#8a8aa0]"
