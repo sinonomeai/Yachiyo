@@ -25,7 +25,7 @@ export async function GET(req: NextRequest) {
       [userId],
     );
 
-    return NextResponse.json({ success: true, docBases: result.rows });
+    return NextResponse.json({ success: true, kBases: result.rows });
   } catch (error) {
     console.error("获取知识库列表失败:", error);
     return NextResponse.json({ success: false, message: "服务器内部错误" }, { status: 500 });

@@ -1,13 +1,13 @@
 "use client";
 import Link from "next/link";
-import { useDocBases } from "@/hooks/useDocBasesData";
+import { useKBases } from "@/hooks/useKnowledgeBaseData";
 
 export default function DocBaseHome() {
   function formatDate(dateStr: string): string {
     const date = new Date(dateStr);
     return date.toLocaleDateString("zh-CN");
   }
-  const { data: docBases = [], isLoading } = useDocBases();
+  const { data: kBases = [], isLoading } = useKBases();
 
   return (
     <>
@@ -24,7 +24,7 @@ export default function DocBaseHome() {
             <div className="flex items-center justify-center py-16">
               <span className="text-[#8a8aa0] text-[16px]">加载中...</span>
             </div>
-          ) : docBases.length === 0 ? (
+          ) : kBases.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-20 text-[#5a5a78]">
               <svg
                 className="w-[48px] h-[48px] mb-4 opacity-30"
@@ -42,7 +42,7 @@ export default function DocBaseHome() {
             </div>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-[16px]">
-              {docBases.map((kb: any) => (
+              {kBases.map((kb: any) => (
                 <Link
                   key={kb.id}
                   href={`/yachiyo/docbase/${kb.id}`}
@@ -84,5 +84,3 @@ export default function DocBaseHome() {
     </>
   );
 }
-
-

@@ -2,7 +2,7 @@ const EMBEDDING_URL = "https://dashscope.aliyuncs.com/compatible-mode/v1/embeddi
 const EMBEDDING_MODEL = "text-embedding-v4";
 const MAX_BATCH = 10; // text-embedding-v4 单次最多 10 条
 
-//调用text-embedding-v4模型将用户提示词向量化
+//将上传的文档向量化
 export async function embedChunks(chunks: string[]): Promise<number[][]> {
   if (chunks.length === 0) return [];
 
@@ -43,7 +43,7 @@ export async function embedChunks(chunks: string[]): Promise<number[][]> {
 
   return allEmbeddings;
 }
-
+//调用text-embedding-v4模型将用户提示词向量化
 export async function embedSingle(text: string): Promise<number[]> {
   const result = await embedChunks([text]);
   return result[0];

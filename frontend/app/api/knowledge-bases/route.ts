@@ -37,7 +37,7 @@ export async function POST(req: NextRequest) {
   }
 }
 //更新知识库
-export async function PUT(req: NextRequest) {
+export async function PATCH(req: NextRequest) {
   const token = req.cookies.get("auth_token")?.value;
   if (!token) {
     return NextResponse.json({ success: false, message: "未登录" }, { status: 401 });

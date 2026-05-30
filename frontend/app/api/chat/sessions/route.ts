@@ -53,7 +53,7 @@ export async function GET(req: NextRequest) {
   }
 }
 
-export async function PUT(req: NextRequest) {
+export async function PATCH(req: NextRequest) {
   const token = req.cookies.get("auth_token")?.value as string;
   let userId: string;
 

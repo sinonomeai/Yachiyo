@@ -1,33 +1,28 @@
-import { useQuery } from "@tanstack/react-query";
-import { fetchDocBases, fetchDocuments, fetchChunks } from "@/lib/docbase";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 
-/** 知识库列表（含文档） */
-export const useDocBases = () => {
-  return useQuery({
-    queryKey: ["docBases"],
-    queryFn: async () => {
-      const data = await fetchDocBases();
-      if (!data.success) return [];
-      return (data.docBases || []).map((kb: any) => ({
-        id: kb.id,
-        user_id: kb.user_id,
-        name: kb.name,
-        description: kb.description,
-        created_at: kb.created_at,
-        updated_at: kb.updated_at,
-      }));
-    },
-    staleTime: 5 * 60 * 1000,
-  });
-};
+interface Document {
+  id: string;
+  knowledge_base_id: string;
+  filename: string;
+  file_type: string;
+  file_size: number | null;
+  total_chunks: number | null;
+  created_at: string;
+  updated_at: string;
+}
+
+// ==================== 查询 ====================
 
 /** 单个知识库下的文档列表 */
-export const useDocuments = (knowledgeBaseId: string | null) => {
+export function useDocuments(knowledgeBaseId: string | null) {
   return useQuery({
     queryKey: ["documents", knowledgeBaseId],
-    queryFn: async () => {
+    queryFn: async (): Promise<Document[]> => {
       if (!knowledgeBaseId) return [];
-      const data = await fetchDocuments(knowledgeBaseId);
+      const res = await fetch(
+        `/api/initialData/getDocuments?knowledgeBaseId=${knowledgeBaseId}`,
+      );
+      const data = await res.json();
       if (!data.success) return [];
       return (data.documents || []).map((doc: any) => ({
         id: doc.id,
@@ -43,15 +38,18 @@ export const useDocuments = (knowledgeBaseId: string | null) => {
     enabled: !!knowledgeBaseId,
     staleTime: 5 * 60 * 1000,
   });
-};
+}
 
 /** 单个文档的向量块数据 */
-export const useChunks = (documentId: string | null) => {
+export function useChunks(documentId: string | null) {
   return useQuery({
     queryKey: ["chunks", documentId],
     queryFn: async () => {
       if (!documentId) return [];
-      const data = await fetchChunks(documentId);
+      const res = await fetch(
+        `/api/initialData/getChunks?documentId=${documentId}`,
+      );
+      const data = await res.json();
       if (!data.success) return [];
       return (data.chunks || []).map((chunk: any) => ({
         id: chunk.id,
@@ -65,4 +63,111 @@ export const useChunks = (documentId: string | null) => {
     enabled: !!documentId,
     staleTime: 5 * 60 * 1000,
   });
-};
+}
+
+// ==================== 变更 ====================
+
+/** 上传文档（完成后刷新文档列表） */
+export function useUploadDocument(baseId: string) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (data: {
+      filename: string;
+      file_type: string;
+      file_size: number;
+      raw_content: string;
+    }) => {
+      const res = await fetch(`/api/knowledge-bases/${baseId}/documents`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      });
+      const json = await res.json();
+      if (!json.success) throw new Error(json.message || "上传失败");
+      return json;
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ["documents", baseId] });
+    },
+  });
+}
+
+/** 重命名文档（乐观更新） */
+export function useRenameDocument(baseId: string) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({
+      documentId,
+      filename,
+    }: {
+      documentId: string;
+      filename: string;
+    }) => {
+      const res = await fetch(`/api/knowledge-bases/${baseId}/documents`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ documentId, filename }),
+      });
+      return res.json();
+    },
+    onMutate: async ({ documentId, filename }) => {
+      await queryClient.cancelQueries({ queryKey: ["documents", baseId] });
+      const previous = queryClient.getQueryData<Document[]>([
+        "documents",
+        baseId,
+      ]);
+
+      queryClient.setQueryData<Document[]>(["documents", baseId], (old) =>
+        (old || []).map((doc) =>
+          doc.id === documentId ? { ...doc, filename } : doc,
+        ),
+      );
+      return { previous };
+    },
+    onError: (_err, _vars, context) => {
+      if (context?.previous) {
+        queryClient.setQueryData(["documents", baseId], context.previous);
+      }
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ["documents", baseId] });
+    },
+  });
+}
+
+/** 删除文档（乐观更新） */
+export function useRemoveDocument(baseId: string) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (documentId: string) => {
+      const res = await fetch(
+        `/api/knowledge-bases/${baseId}/documents?documentId=${documentId}`,
+        { method: "DELETE" },
+      );
+      return res.json();
+    },
+    onMutate: async (documentId) => {
+      await queryClient.cancelQueries({ queryKey: ["documents", baseId] });
+      const previous = queryClient.getQueryData<Document[]>([
+        "documents",
+        baseId,
+      ]);
+
+      queryClient.setQueryData<Document[]>(["documents", baseId], (old) =>
+        (old || []).filter((doc) => doc.id !== documentId),
+      );
+      return { previous };
+    },
+    onError: (_err, _documentId, context) => {
+      if (context?.previous) {
+        queryClient.setQueryData(["documents", baseId], context.previous);
+      }
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ["documents", baseId] });
+    },
+  });
+}

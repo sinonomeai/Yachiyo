@@ -29,14 +29,8 @@ body {
 button {
   cursor: pointer;
 }
-.font-pixel {
-  font-family: var(--font-pixel);
-}
 .font-press-start {
   font-family: var(--font-press-start);
-}
-.font-upheaval {
-  font-family: var(--font-upheaval);
 }
 .icon {
   width: 1em;

@@ -1,6 +1,7 @@
 "use client";
 import { useParams } from "next/navigation";
-import { useDocBases, useDocuments } from "@/hooks/useDocBasesData";
+import { useKBases } from "@/hooks/useKnowledgeBaseData";
+import { useDocuments } from "@/hooks/useDocBasesData";
 import { UploadSection } from "./components/UploadSection";
 import { DocumentList } from "./components/DocumentList";
 
@@ -14,9 +15,9 @@ export default function DocBaseDetail() {
   const params = useParams();
   const baseId = params.baseId as string;
 
-  const { data: docBases = [] } = useDocBases();
+  const { data: kBases = [] } = useKBases();
   const { data: documents = [], isLoading } = useDocuments(baseId);
-  const kb = docBases.find((kb: any) => kb.id === baseId);
+  const kb = kBases.find((kb: any) => kb.id === baseId);
 
   return (
     <>

@@ -5,34 +5,39 @@ import { Icon } from "@/components/Icon/Icon";
 import { useSiderStore } from "@/state/stores/useSiderStore";
 import { useModStore } from "@/state/stores/useModStore";
 import { useSessions } from "@/hooks/useSessionsData";
-import { useDocBases } from "@/hooks/useDocBasesData";
+import { useKBases } from "@/hooks/useKnowledgeBaseData";
 import { List } from "./components/List/List";
 import styles from "../../yachiyo.module.css";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 export const SiderBar = () => {
+  //知识库列表状态
+  const { data: kBases } = useKBases();
+  //会话列表状态
+  const { data: sessions = [] } = useSessions();
   //ai对话或知识库模式状态
   const { isChat, setIsChat } = useModStore();
-  const { data: docBases } = useDocBases();
-  const pathname = usePathname();
 
+  //根据当前路由判断是否切换聊天模式
+  const pathname = usePathname();
   useLayoutEffect(() => {
     if (!pathname.startsWith("/yachiyo/docbase")) {
       setIsChat(true);
     }
   }, [pathname]);
-  //会话列表状态
-  const { data: sessions = [] } = useSessions();
+
+  //根据用户操作判断是否自动收起侧边栏
+
+  const [isAutoControl, setIsAutoControl] = useState(true);
   //展开状态
   const { isExpanded, setExpanded } = useSiderStore();
-  //根据用户操作判断是否自动搜索
-  const [isAutoControl, setIsAutoControl] = useState(true);
   const isExpandedRef = useRef(isExpanded);
+
   const isAutoControlRef = useRef(isAutoControl);
   isAutoControlRef.current = isAutoControl;
   isExpandedRef.current = isExpanded;
-  //按钮切换函数
+  //侧边栏按钮切换侧边栏状态函数，同时开启时设置自动收起，关闭时关闭自动收起
   const toggleSidebar = () => {
     if (isExpanded) {
       setIsAutoControl(false);
@@ -44,7 +49,6 @@ export const SiderBar = () => {
   // 自动随屏幕收缩
   useEffect(() => {
     const handleResize = () => {
-      console.log(isAutoControlRef.current, isExpanded);
       if (!isAutoControlRef.current) return;
       if (window.innerWidth < 1024 && isExpandedRef.current) {
         setExpanded(false);
@@ -162,7 +166,7 @@ export const SiderBar = () => {
               {isChat ? (
                 <List isChat={true} listData={sessions ?? []} />
               ) : (
-                <List isChat={false} listData={docBases ?? []} />
+                <List isChat={false} listData={kBases ?? []} />
               )}
             </div>
           </div>

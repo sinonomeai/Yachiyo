@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect, memo, useCallback } from "react";
+import { useState, useRef, useEffect, memo } from "react";
 import { message } from "antd";
 import { usePathname, useRouter } from "next/navigation";
 import { useRemoveSession } from "@/hooks/useSessionsData";
@@ -13,8 +13,11 @@ export const SessionMenu = memo(function SessionMenu({
 }) {
   const [open, setOpen] = useState(false);
   const [renameOpen, setRenameOpen] = useState(false);
+  //根据会话位置控制弹出位置
   const [menuPosition, setMenuPosition] = useState<"top" | "bottom">("bottom");
+  //控制不点击会话菜单关闭
   const ref = useRef<HTMLDivElement>(null);
+  //控制会话删除后跳转主页面
   const router = useRouter();
   const pathName = usePathname();
   const { mutateAsync: removeSession } = useRemoveSession();
@@ -27,18 +30,18 @@ export const SessionMenu = memo(function SessionMenu({
     return () => document.removeEventListener("click", handler);
   }, [open]);
 
-  const handleDelete = useCallback(async () => {
+  const handleDelete = async () => {
     setOpen(false);
     try {
       await removeSession(id);
       message.success("删除成功");
       if (pathName === `/yachiyo/chat/${id}`) {
-        router.push("/yachiyo");
+        router.replace("/yachiyo");
       }
     } catch {
       message.error("删除失败");
     }
-  }, [id, pathName, removeSession, router]);
+  };
 
   const handleOpen = () => {
     if (ref.current) {

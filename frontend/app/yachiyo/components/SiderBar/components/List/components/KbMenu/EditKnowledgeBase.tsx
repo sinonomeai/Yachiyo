@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Popup } from "@/components/Popup/Popup";
 import { message } from "antd";
-import { useQueryClient } from "@tanstack/react-query";
+import { useUpdateKnowledgeBase } from "@/hooks/useKnowledgeBaseData";
 
 export function EditKnowledgeBase({
   open,
@@ -18,8 +18,7 @@ export function EditKnowledgeBase({
 }) {
   const [name, setName] = useState(initialName);
   const [description, setDescription] = useState(initialDescription);
-  const [submitting, setSubmitting] = useState(false);
-  const queryClient = useQueryClient();
+  const { mutateAsync: update, isPending: submitting } = useUpdateKnowledgeBase();
 
   useEffect(() => {
     if (open) {
@@ -28,29 +27,20 @@ export function EditKnowledgeBase({
     }
   }, [open, initialName, initialDescription]);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.SubmitEvent) => {
     e.preventDefault();
     if (!name.trim() || submitting) return;
 
-    setSubmitting(true);
     try {
-      const res = await fetch("/api/knowledge-bases", {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ id, name: name.trim(), description: description.trim() }),
+      await update({
+        id,
+        name: name.trim(),
+        description: description.trim(),
       });
-      const data = await res.json();
-      if (data.success) {
-        message.success("修改成功");
-        queryClient.invalidateQueries({ queryKey: ["docBases"] });
-        onClose();
-      } else {
-        message.error(data.message || "修改失败");
-      }
-    } catch {
-      message.error("修改失败");
-    } finally {
-      setSubmitting(false);
+      message.success("修改成功");
+      onClose();
+    } catch (err: any) {
+      message.error(err?.message || "修改失败");
     }
   };
 

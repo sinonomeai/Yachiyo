@@ -1,4 +1,4 @@
-import { useState, useEffect, memo, useCallback } from "react";
+import { useState, useEffect, memo } from "react";
 import { Popup } from "@/components/Popup/Popup";
 import { message } from "antd";
 import { useUpdateSessionTitle } from "@/hooks/useSessionsData";
@@ -22,24 +22,21 @@ export const RenameSession = memo(function RenameSession({
     if (open) setTitle(initialTitle);
   }, [open, initialTitle]);
 
-  const handleSubmit = useCallback(
-    async (e: React.FormEvent) => {
-      e.preventDefault();
-      if (!title.trim() || submitting) return;
+  const handleSubmit = async (e: React.SubmitEvent) => {
+    e.preventDefault();
+    if (!title.trim() || submitting) return;
 
-      setSubmitting(true);
-      try {
-        await updateSessionTitle({ id, title: title.trim() });
-        message.success("重命名成功");
-        onClose();
-      } catch {
-        message.error("重命名失败");
-      } finally {
-        setSubmitting(false);
-      }
-    },
-    [id, title, submitting, updateSessionTitle, onClose],
-  );
+    setSubmitting(true);
+    try {
+      await updateSessionTitle({ id, title: title.trim() });
+      message.success("重命名成功");
+      onClose();
+    } catch {
+      message.error("重命名失败");
+    } finally {
+      setSubmitting(false);
+    }
+  };
 
   return (
     <Popup open={open} onClose={onClose}>

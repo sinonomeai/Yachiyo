@@ -125,7 +125,7 @@ export async function POST(req: Request) {
       console.log("原始问题:", userQuestion);
       console.log("改写后:", rewrittenQuery);
 
-      // 用改写后的问题进行 RAG 检索
+      // 将改写后的问题合并到系统提示词进行 RAG 检索
       const ragContext = await buildRagContext(rewrittenQuery, documentIds);
       if (ragContext) {
         systemPrompt = `${BASE_SYSTEM_PROMPT}\n\n${ragContext}`;

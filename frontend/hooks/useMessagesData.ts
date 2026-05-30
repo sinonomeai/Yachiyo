@@ -1,12 +1,12 @@
 import { useQuery } from "@tanstack/react-query";
-import { loadHistory } from "@/lib/chat-session";
-//根据会话id缓存对应会话消息
+
+/** 根据会话 id 加载历史消息，标题为 "新对话" 时每 2s 轮询等待 AI 标题生成 */
 export const useMessages = ({ sessionId }: { sessionId: string }) => {
   return useQuery({
     queryKey: ["session", sessionId],
     queryFn: async () => {
-      const data = await loadHistory({ sessionId });
-      if (!data.success) return { title: null, messages: [] };
+      const res = await fetch(`/api/chat/sessions?sessionId=${sessionId}`);
+      const data = await res.json();
       return {
         title: data.session?.title ?? null,
         messages: (data.messages || []).map((msg: any) => ({

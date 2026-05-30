@@ -20,7 +20,6 @@ type LoginFormData = z.infer<typeof loginSchema>;
 // 登录组件
 export const Login = ({ isToggle }: { isToggle: boolean }) => {
   const router = useRouter();
-  
   const {
     register,
     handleSubmit,
@@ -47,7 +46,6 @@ export const Login = ({ isToggle }: { isToggle: boolean }) => {
         // 保存登录信息
         localStorage.setItem("user", JSON.stringify(result.user));
         message.success(result.message || "登录成功");
-         
         // 登录成功后跳转到主页
         router.push("/yachiyo");
       } else {
@@ -68,7 +66,6 @@ export const Login = ({ isToggle }: { isToggle: boolean }) => {
             type="email"
             placeholder="Email"
             label="电子邮件"
-            
             {...register("email")}>
             <UserOutlined></UserOutlined>
           </Input>

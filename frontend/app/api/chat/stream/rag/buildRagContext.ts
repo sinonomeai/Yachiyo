@@ -32,8 +32,10 @@ export async function buildRagContext(
     context += `### 来自文档：${chunk.filename}\n${chunk.content}\n\n`;
   }
   context +=
-    "请基于以上参考资料回答用户的问题。如果参考资料不足以回答，请如实告知，不要编造。\n" +
-    "重要：在回答中必须明确标注引用的文档来源，例如「根据《xxx.md》...」或「参考以下文档：...」。";
+    "请基于以上参考资料回答用户的问题。如果参考资料不足以回答，请如实告知，不要编造\n" +
+    "禁止在段落开头或中间放置引用标注，统一放到对应内容的末尾。\n" +
+    "重要：在回答中必须明确标注引用的文档来源。标注时，请将引用来源放在对应段落或句子的末尾，格式为「（根据《xxx.md》文档）」。" +
+    "例如：某个观点来源于 reference.md 文件，请在引用该信息的句子或段落结尾加上（根据 reference.md 文档）。";
 
   return context;
 }
@@ -89,4 +91,3 @@ export async function rewriteQuery(query: string): Promise<string> {
     return query;
   }
 }
-

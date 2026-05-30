@@ -27,6 +27,7 @@ type ListProps =
 export const List = (props: ListProps) => {
   const pathName = usePathname();
   const { isChat, listData } = props;
+  //弹出新增知识库表单
   const [createOpen, setCreateOpen] = useState(false);
 
   if (isChat) {

@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
-import { useQueryClient } from "@tanstack/react-query";
-import { uploadDocument } from "@/lib/docbase";
+import { useUploadDocument } from "@/hooks/useDocBasesData";
 import type { UploadTask } from "../page";
 
 interface UploadSectionProps {
@@ -8,7 +7,7 @@ interface UploadSectionProps {
 }
 
 export function UploadSection({ baseId }: UploadSectionProps) {
-  const queryClient = useQueryClient();
+  const { mutateAsync: upload } = useUploadDocument(baseId);
   const [tasks, setTasks] = useState<UploadTask[]>([]);
   const [uploading, setUploading] = useState(false);
 
@@ -33,7 +32,10 @@ export function UploadSection({ baseId }: UploadSectionProps) {
       return;
     }
 
-    const newTasks: UploadTask[] = mdFiles.map((file) => ({ file, status: "pending" }));
+    const newTasks: UploadTask[] = mdFiles.map((file) => ({
+      file,
+      status: "pending",
+    }));
     setTasks(newTasks);
     setUploading(true);
 
@@ -41,12 +43,14 @@ export function UploadSection({ baseId }: UploadSectionProps) {
       const task = newTasks[i];
 
       setTasks((prev) =>
-        prev.map((t, idx) => (idx === i ? { ...t, status: "uploading" as const } : t)),
+        prev.map((t, idx) =>
+          idx === i ? { ...t, status: "uploading" as const } : t,
+        ),
       );
 
       try {
         const text = await task.file.text();
-        await uploadDocument(baseId, {
+        await upload({
           filename: task.file.name,
           file_type: "md",
           file_size: task.file.size,
@@ -54,19 +58,22 @@ export function UploadSection({ baseId }: UploadSectionProps) {
         });
 
         setTasks((prev) =>
-          prev.map((t, idx) => (idx === i ? { ...t, status: "done" as const } : t)),
+          prev.map((t, idx) =>
+            idx === i ? { ...t, status: "done" as const } : t,
+          ),
         );
       } catch {
         setTasks((prev) =>
           prev.map((t, idx) =>
-            idx === i ? { ...t, status: "error" as const, error: "上传失败" } : t,
+            idx === i
+              ? { ...t, status: "error" as const, error: "上传失败" }
+              : t,
           ),
         );
       }
     }
 
     setUploading(false);
-    queryClient.invalidateQueries({ queryKey: ["documents", baseId] });
   };
 
   return (
@@ -113,12 +120,18 @@ export function UploadSection({ baseId }: UploadSectionProps) {
           <div className="w-full h-[4px] bg-[#282840] rounded-full overflow-hidden mb-3">
             <div
               className="h-full bg-[#5b8def] rounded-full transition-all duration-300"
-              style={{ width: `${totalCount > 0 ? (doneCount / totalCount) * 100 : 0}%` }}
+              style={{
+                width: `${
+                  totalCount > 0 ? (doneCount / totalCount) * 100 : 0
+                }%`,
+              }}
             />
           </div>
           <div className="flex flex-col gap-[4px] max-h-[140px] overflow-y-auto custom-scrollbar">
             {tasks.map((task, idx) => (
-              <div key={idx} className="flex items-center gap-[8px] text-[12px]">
+              <div
+                key={idx}
+                className="flex items-center gap-[8px] text-[12px]">
                 {task.status === "uploading" ? (
                   <span className="w-[14px] h-[14px] border-2 border-[#5b8def] border-t-transparent rounded-full animate-spin shrink-0" />
                 ) : task.status === "done" ? (
@@ -145,7 +158,9 @@ export function UploadSection({ baseId }: UploadSectionProps) {
                 ) : (
                   <span className="w-[14px] h-[14px] rounded-full border border-[#5a5a78] shrink-0" />
                 )}
-                <span className="text-[#e0e0ec] truncate flex-1 min-w-0">{task.file.name}</span>
+                <span className="text-[#e0e0ec] truncate flex-1 min-w-0">
+                  {task.file.name}
+                </span>
                 {task.status === "error" && (
                   <span className="text-[#f87171] shrink-0">{task.error}</span>
                 )}

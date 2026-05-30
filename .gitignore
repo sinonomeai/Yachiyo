@@ -1,2 +1,6 @@
-# env files
-.env*
+node_modules/
+.env
+.DS_Store
+dist/
+build/
+.next/

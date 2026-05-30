@@ -1,43 +1,25 @@
 import { useState } from "react";
 import { Popup } from "@/components/Popup/Popup";
 import { message } from "antd";
-import { useQueryClient } from "@tanstack/react-query";
+import { useCreateKnowledgeBase } from "@/hooks/useKnowledgeBaseData";
 
-export function CreateKnowledgeBase({
-  open,
-  onClose,
-}: {
-  open: boolean;
-  onClose: () => void;
-}) {
+export function CreateKnowledgeBase({ open, onClose }: { open: boolean; onClose: () => void }) {
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
-  const [submitting, setSubmitting] = useState(false);
-  const queryClient = useQueryClient();
+  const { mutateAsync: create, isPending: submitting } = useCreateKnowledgeBase();
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.SubmitEvent) => {
     e.preventDefault();
     if (!name.trim() || submitting) return;
 
-    setSubmitting(true);
     try {
-      const res = await fetch("/api/knowledge-bases", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name: name.trim(), description: description.trim() }),
-      });
-      const data = await res.json();
-      if (data.success) {
-        queryClient.invalidateQueries({ queryKey: ["docBases"] });
-        message.success("创建成功");
-        onClose();
-        setName("");
-        setDescription("");
-      }
-    } catch (err) {
-      console.error("创建知识库失败:", err);
-    } finally {
-      setSubmitting(false);
+      await create({ name: name.trim(), description: description.trim() });
+      message.success("创建成功");
+      onClose();
+      setName("");
+      setDescription("");
+    } catch (err: any) {
+      message.error(err?.message || "创建失败");
     }
   };
 

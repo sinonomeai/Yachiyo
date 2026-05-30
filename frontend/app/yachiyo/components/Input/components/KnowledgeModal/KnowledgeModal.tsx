@@ -1,7 +1,8 @@
 "use client";
 import { useState, useEffect } from "react";
 import { Popup } from "@/components/Popup/Popup";
-import { useDocBases, useDocuments } from "@/hooks/useDocBasesData";
+import { useKBases } from "@/hooks/useKnowledgeBaseMutations";
+import { useDocuments } from "@/hooks/useDocBasesData";
 import { useKnowledgeStore } from "@/state/stores/useKnowledgeStore";
 
 interface KnowledgeModalProps {
@@ -10,7 +11,7 @@ interface KnowledgeModalProps {
 }
 
 export const KnowledgeModal = ({ open, onClose }: KnowledgeModalProps) => {
-  const { data: docBases = [] } = useDocBases();
+  const { data: kBases = [] } = useKBases();
   const store = useKnowledgeStore();
 
   const [tempBaseId, setTempBaseId] = useState<string | null>(null);
@@ -45,7 +46,7 @@ export const KnowledgeModal = ({ open, onClose }: KnowledgeModalProps) => {
     onClose();
   };
 
-  const selectedKb = docBases.find((kb: any) => kb.id === tempBaseId);
+  const selectedKb = kBases.find((kb: any) => kb.id === tempBaseId);
 
   return (
     <Popup open={open} onClose={onClose}>
@@ -73,10 +74,10 @@ export const KnowledgeModal = ({ open, onClose }: KnowledgeModalProps) => {
         <div className="flex flex-1 min-h-0">
           {/* 左栏：知识库列表 */}
           <div className="w-[40%] border-r border-[#282840] overflow-y-auto custom-scrollbar p-[12px]">
-            {docBases.length === 0 ? (
+            {kBases.length === 0 ? (
               <p className="text-[#5a5a78] text-[13px] text-center mt-8">暂无知识库</p>
             ) : (
-              docBases.map((kb: any) => (
+              kBases.map((kb: any) => (
                 <button
                   key={kb.id}
                   className={`w-full text-left px-[12px] py-[10px] rounded-[8px] mb-[4px] transition-colors ${

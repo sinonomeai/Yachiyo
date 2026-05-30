@@ -1,6 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { useQueryClient } from "@tanstack/react-query";
-import { renameDocument, deleteDocument } from "@/lib/docbase";
+import { useRenameDocument, useRemoveDocument } from "@/hooks/useDocBasesData";
 import { Popup } from "@/components/Popup/Popup";
 
 interface DocumentListProps {
@@ -10,7 +9,6 @@ interface DocumentListProps {
 }
 
 export function DocumentList({ documents, isLoading, baseId }: DocumentListProps) {
-  const queryClient = useQueryClient();
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editValue, setEditValue] = useState("");
   const [deleteTarget, setDeleteTarget] = useState<{
@@ -19,8 +17,8 @@ export function DocumentList({ documents, isLoading, baseId }: DocumentListProps
   } | null>(null);
   const editInputRef = useRef<HTMLInputElement>(null);
 
-  const invalidate = () =>
-    queryClient.invalidateQueries({ queryKey: ["documents", baseId] });
+  const { mutateAsync: rename } = useRenameDocument(baseId);
+  const { mutateAsync: remove } = useRemoveDocument(baseId);
 
   useEffect(() => {
     if (editingId) editInputRef.current?.focus();
@@ -37,9 +35,8 @@ export function DocumentList({ documents, isLoading, baseId }: DocumentListProps
     if (!trimmed) return;
 
     try {
-      await renameDocument(baseId, editingId, trimmed);
+      await rename({ documentId: editingId, filename: trimmed });
       setEditingId(null);
-      invalidate();
     } catch {
       alert("重命名失败");
     }
@@ -55,9 +52,8 @@ export function DocumentList({ documents, isLoading, baseId }: DocumentListProps
   const confirmDelete = async () => {
     if (!deleteTarget) return;
     try {
-      await deleteDocument(baseId, deleteTarget.id);
+      await remove(deleteTarget.id);
       setDeleteTarget(null);
-      invalidate();
     } catch {
       alert("删除失败");
     }
