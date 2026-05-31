@@ -5,9 +5,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { message } from "antd";
-import {
-  UserOutlined,
-} from "@ant-design/icons";
+import { UserOutlined } from "@ant-design/icons";
 import { useRouter } from "next/navigation";
 
 // 定义登录表单的验证规则
@@ -43,6 +41,10 @@ export const Login = ({ isToggle }: { isToggle: boolean }) => {
       const result = await response.json();
 
       if (result.success) {
+        //清除本地存储
+        localStorage.removeItem("user");
+        localStorage.removeItem("sessions-storage");
+        localStorage.removeItem("knowledge-selection");
         // 保存登录信息
         localStorage.setItem("user", JSON.stringify(result.user));
         message.success(result.message || "登录成功");
@@ -62,28 +64,18 @@ export const Login = ({ isToggle }: { isToggle: boolean }) => {
       <form onSubmit={handleSubmit(onSubmit)}>
         <p className={`${styles.title}`}>登入账号</p>
         <div className="flex flex-col">
-          <Input
-            type="email"
-            placeholder="Email"
-            label="电子邮件"
-            {...register("email")}>
+          <Input type="email" placeholder="Email" label="电子邮件" {...register("email")}>
             <UserOutlined></UserOutlined>
           </Input>
-          <p
-            className={`${styles.error} ${errors.email ? "visible" : "invisible"}`}>
+          <p className={`${styles.error} ${errors.email ? "visible" : "invisible"}`}>
             {errors.email?.message || ""}
           </p>
         </div>
         <div className="flex flex-col">
-          <Input
-            type="password"
-            placeholder="Password"
-            label="密码"
-            {...register("password")}>
+          <Input type="password" placeholder="Password" label="密码" {...register("password")}>
             <UserOutlined></UserOutlined>
           </Input>
-          <p
-            className={`${styles.error} ${errors.password ? "visible" : "invisible"}`}>
+          <p className={`${styles.error} ${errors.password ? "visible" : "invisible"}`}>
             {errors.password?.message || ""}
           </p>
         </div>
@@ -93,10 +85,7 @@ export const Login = ({ isToggle }: { isToggle: boolean }) => {
         border-b border-solid border-[#5a5a72] leading-[2]">
           忘记密码？
         </p>
-        <Button
-          type="submit"
-          disabled={isSubmitting}
-          className={`${styles.button} mt-[50px]`}>
+        <Button type="submit" disabled={isSubmitting} className={`${styles.button} mt-[50px]`}>
           {isSubmitting ? "Signing in..." : "SIGN IN"}
         </Button>
       </form>
