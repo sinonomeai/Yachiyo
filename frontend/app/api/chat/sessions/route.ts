@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import jwt from "jsonwebtoken";
 import pool from "@/lib/db";
-
+//查询单个会话
 export async function GET(req: NextRequest) {
   const token = req.cookies.get("auth_token")?.value as string;
   let userId: string;
@@ -52,7 +52,7 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: "服务器内部错误" }, { status: 500 });
   }
 }
-
+//更新对应会话
 export async function PATCH(req: NextRequest) {
   const token = req.cookies.get("auth_token")?.value as string;
   let userId: string;

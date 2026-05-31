@@ -1,8 +1,8 @@
 import { NextResponse, NextRequest } from "next/server";
 import jwt from "jsonwebtoken";
 import pool from "@/lib/db";
-import { chunkMarkdown } from "@/lib/docChunk";
-import { embedChunks } from "@/lib/embed";
+import { chunkMarkdown } from "@/app/api/embedChunks/docChunk";
+import { embedChunks } from "@/app/api/embedChunks/embedChunks";
 //将数组向量转换为字符串格式
 function formatVector(embedding: number[]): string {
   return `[${embedding.join(",")}]`;

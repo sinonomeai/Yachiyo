@@ -5,19 +5,15 @@ import { useDocuments } from "@/hooks/useDocBasesData";
 import { UploadSection } from "./components/UploadSection";
 import { DocumentList } from "./components/DocumentList";
 
-export interface UploadTask {
-  file: File;
-  status: "pending" | "uploading" | "done" | "error";
-  error?: string;
-}
+
 
 export default function DocBaseDetail() {
   const params = useParams();
   const baseId = params.baseId as string;
 
   const { data: kBases = [] } = useKBases();
-  const { data: documents = [], isLoading } = useDocuments(baseId);
   const kb = kBases.find((kb: any) => kb.id === baseId);
+  const { data: documents = [], isLoading } = useDocuments(baseId);
 
   return (
     <>

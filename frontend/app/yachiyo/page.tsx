@@ -20,7 +20,6 @@ export default function Dashboard() {
     addSession({
       session: {
         id: sessionId,
-        title: "新对话",
         createdAt: createdAt,
       },
       firstMessage: messageSend,

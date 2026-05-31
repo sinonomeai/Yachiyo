@@ -40,31 +40,6 @@ export function useDocuments(knowledgeBaseId: string | null) {
   });
 }
 
-/** 单个文档的向量块数据 */
-export function useChunks(documentId: string | null) {
-  return useQuery({
-    queryKey: ["chunks", documentId],
-    queryFn: async () => {
-      if (!documentId) return [];
-      const res = await fetch(
-        `/api/initialData/getChunks?documentId=${documentId}`,
-      );
-      const data = await res.json();
-      if (!data.success) return [];
-      return (data.chunks || []).map((chunk: any) => ({
-        id: chunk.id,
-        document_id: chunk.document_id,
-        chunk_index: chunk.chunk_index,
-        content: chunk.content,
-        metadata: chunk.metadata,
-        created_at: chunk.created_at,
-      }));
-    },
-    enabled: !!documentId,
-    staleTime: 5 * 60 * 1000,
-  });
-}
-
 // ==================== 变更 ====================
 
 /** 上传文档（完成后刷新文档列表） */

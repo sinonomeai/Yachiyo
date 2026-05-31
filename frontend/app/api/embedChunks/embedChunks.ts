@@ -1,8 +1,17 @@
+/**
+ * 文档向量化模块
+ *
+ * 上游：chunkMarkdown() — @/app/api/embedChunks/docChunk — 将 Markdown 切片为文本块
+ * 当前：embedChunks() — 将切片批量向量化
+ * 下游：documents/route.ts — 将向量写入 document_chunks 表
+ */
+
 const EMBEDDING_URL = "https://dashscope.aliyuncs.com/compatible-mode/v1/embeddings";
 const EMBEDDING_MODEL = "text-embedding-v4";
 const MAX_BATCH = 10; // text-embedding-v4 单次最多 10 条
 
-//将上传的文档向量化
+// 将上传的文档切片批量向量化（切片由 chunkMarkdown 完成）
+// import { chunkMarkdown } from "@/app/api/embedChunks/docChunk";
 export async function embedChunks(chunks: string[]): Promise<number[][]> {
   if (chunks.length === 0) return [];
 

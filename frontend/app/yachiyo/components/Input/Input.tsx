@@ -15,9 +15,13 @@ export const Input = ({ onSubmit, status, setInput, input }: Input) => {
   const disabled = input.length === 0 || input.trim() === "";
   const fatherRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  //展开知识库选择列表
   const [modalOpen, setModalOpen] = useState(false);
+  //选择知识库
   const { selectedDocumentIds } = useKnowledgeStore();
+  //切换思考模式
   const { deepThinking, setThinkingMod } = useDeepThinkingStore();
+  //切换搜索模式
   const { webSearching, setSearchingMod } = useWebSearchingStore();
   const hasSelection = selectedDocumentIds.length > 0;
   useEffect(() => {

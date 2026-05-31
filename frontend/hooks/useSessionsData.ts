@@ -11,7 +11,7 @@ export function useSessions() {
   return useQuery({
     queryKey: ["sessions"],
     queryFn: async (): Promise<Session[]> => {
-      const res = await fetch("/api/initialData/getList");
+      const res = await fetch("/api/initialData/getSessions");
       const data = await res.json();
       if (!data.success || !data.sessions) return [];
       return data.sessions.map((s: any) => ({
@@ -29,7 +29,7 @@ export function useAddSession() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({ session, firstMessage }: { session: Session; firstMessage: string }) => {
+    mutationFn: async ({ session, firstMessage }: { session: { id: string; createdAt: Date }; firstMessage: string }) => {
       await fetch("/api/chat/init", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -43,7 +43,9 @@ export function useAddSession() {
     onMutate: async ({ session }) => {
       await queryClient.cancelQueries({ queryKey: ["sessions"] });
       const previous = queryClient.getQueryData<Session[]>(["sessions"]);
-      queryClient.setQueryData<Session[]>(["sessions"], (old) => [session, ...(old || [])]);
+      queryClient.setQueryData<Session[]>(["sessions"], (old) =>
+        [{ ...session, title: "新对话" }, ...(old || [])],
+      );
       return { previous };
     },
     onError: (_err, _vars, context) => {

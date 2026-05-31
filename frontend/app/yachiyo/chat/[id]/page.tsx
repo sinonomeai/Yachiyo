@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation";
 import { useState, useEffect, useRef, useLayoutEffect } from "react";
 import { Input } from "../../components/Input/Input";
 import { useSiderStore } from "@/state/stores/useSiderStore";
-import { useSessions, useUpdateSessionTitle } from "@/hooks/useSessionsData";
+import { useUpdateSessionTitle } from "@/hooks/useSessionsData";
 import { useKnowledgeStore } from "@/state/stores/useKnowledgeStore";
 import { useDeepThinkingStore } from "@/state/stores/useDeepThinkingStore";
 import { useChat } from "@ai-sdk/react";
@@ -26,7 +26,8 @@ export default function QA() {
   //知识库选中
   const { selectedBaseId, selectedDocumentIds } = useKnowledgeStore();
   //深度思考模式选中
-  const { deepThinking, setThinkingMod } = useDeepThinkingStore();
+  const { deepThinking } = useDeepThinkingStore();
+  //使用 useChat Hook 初始化聊天功能
   const { messages, sendMessage, status, setMessages } = useChat({
     transport: new DefaultChatTransport({
       api: "/api/chat/stream",
@@ -35,27 +36,22 @@ export default function QA() {
   });
   //获取历史消息
   const { data: sessionData, isLoading: isHistoryLoading } = useMessages({ sessionId });
-  //标题更新
-  const { data: sessions = [] } = useSessions();
-  const { mutate: updateSessionTitle } = useUpdateSessionTitle();
-  const localSession = sessions.find((s: any) => s.id === sessionId);
-  const title = sessionData?.title || localSession?.title || "新对话";
-
   //添加历史消息于上下文
   useEffect(() => {
     if (sessionData?.messages?.length && status === "ready") {
       setMessages(sessionData.messages);
     }
   }, [sessionData?.messages]);
-  //等待后台轮询获取title（仅在标题真正变化时同步）
+  //标题更新
+  const { mutate: updateSessionTitle } = useUpdateSessionTitle();
+  const title = sessionData?.title || "新对话";
+  const prevTitleRef = useRef<string | null>(null);
+  // 标题从默认值变为 AI 生成值时，同步到 sessions 缓存
   useEffect(() => {
-    if (
-      sessionData?.title &&
-      sessionData.title !== "新对话" &&
-      sessionData.title !== localSession?.title
-    ) {
+    if (sessionData?.title && sessionData.title !== "新对话" && prevTitleRef.current === "新对话") {
       updateSessionTitle({ id: sessionId, title: sessionData.title });
     }
+    prevTitleRef.current = sessionData?.title ?? null;
   }, [sessionData?.title]);
   //获取新对话初始消息并发送重定向
   useEffect(() => {
@@ -116,7 +112,12 @@ export default function QA() {
         <p>{title}</p>
       </div>
 
-      <Chat messages={messages} status={status} isLoading={isHistoryLoading} messagesEndRef={messagesEndRef} />
+      <Chat
+        messages={messages}
+        status={status}
+        isLoading={isHistoryLoading}
+        messagesEndRef={messagesEndRef}
+      />
 
       <div className="px-[32px] pb-[24px]">
         <div className="lg:w-full lg:max-w-[840px] lg:min-w-[762px] sm:max-w-[712px] sm:min-w-[492px] mx-auto">

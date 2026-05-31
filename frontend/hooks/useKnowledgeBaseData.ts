@@ -16,7 +16,7 @@ export function useKBases() {
   return useQuery({
     queryKey: ["kBases"],
     queryFn: async (): Promise<KnowledgeBase[]> => {
-      const res = await fetch("/api/initialData/getDocBases");
+      const res = await fetch("/api/initialData/getKBases");
       const data = await res.json();
       if (!data.success) return [];
       return (data.kBases || []).map((kb: any) => ({

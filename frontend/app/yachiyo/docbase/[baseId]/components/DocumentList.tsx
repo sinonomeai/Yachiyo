@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import { useRenameDocument, useRemoveDocument } from "@/hooks/useDocBasesData";
 import { Popup } from "@/components/Popup/Popup";
+import { message } from "antd";
 
 interface DocumentListProps {
   documents: any[];
@@ -8,57 +9,70 @@ interface DocumentListProps {
   baseId: string;
 }
 
+/** 知识库文档列表：展示、重命名（内联编辑）、删除（弹窗确认） */
 export function DocumentList({ documents, isLoading, baseId }: DocumentListProps) {
-  const [editingId, setEditingId] = useState<string | null>(null);
-  const [editValue, setEditValue] = useState("");
-  const [deleteTarget, setDeleteTarget] = useState<{
-    id: string;
-    filename: string;
-  } | null>(null);
-  const editInputRef = useRef<HTMLInputElement>(null);
-
+  // mutateAsync 返回 Promise，便于在事件处理中 await 错误
   const { mutateAsync: rename } = useRenameDocument(baseId);
   const { mutateAsync: remove } = useRemoveDocument(baseId);
 
+  // ---- 重命名相关状态 ----
+  //保存编辑文档id
+  const [editingId, setEditingId] = useState<string | null>(null);
+  //保存编辑文档值
+  const [editValue, setEditValue] = useState("");
+  const editInputRef = useRef<HTMLInputElement>(null);
+  // 进入编辑态时自动聚焦输入框
   useEffect(() => {
     if (editingId) editInputRef.current?.focus();
   }, [editingId]);
+  // ---- 重命名操作 ----
 
+  /** 进入重命名编辑态 */
   const startRename = (doc: any) => {
     setEditingId(doc.id);
     setEditValue(doc.filename);
   };
 
+  /** 确认重命名并提交 */
   const confirmRename = async () => {
     if (!editingId) return;
-    const trimmed = editValue.trim();
-    if (!trimmed) return;
-
+    if (!editValue.trim()) return;
     try {
-      await rename({ documentId: editingId, filename: trimmed });
+      await rename({ documentId: editingId, filename: editValue.trim() });
       setEditingId(null);
     } catch {
-      alert("重命名失败");
+      message.error("重命名失败");
     }
   };
 
+  /** 取消重命名（失焦或 Esc） */
   const cancelRename = () => setEditingId(null);
 
+  /** 重命名输入框键盘事件：Enter 确认，Esc 取消 */
   const handleRenameKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === "Enter") confirmRename();
     if (e.key === "Escape") cancelRename();
   };
 
+  // ---- 删除确认相关状态 ----
+  const [deleteTarget, setDeleteTarget] = useState<{
+    id: string;
+    filename: string;
+  } | null>(null);
+  // ---- 删除操作 ----
+
+  /** 确认删除并提交 */
   const confirmDelete = async () => {
     if (!deleteTarget) return;
     try {
       await remove(deleteTarget.id);
       setDeleteTarget(null);
     } catch {
-      alert("删除失败");
+      message.error("删除失败");
     }
   };
 
+  // 加载态
   if (isLoading) {
     return (
       <div className="flex items-center justify-center py-12">
@@ -67,6 +81,7 @@ export function DocumentList({ documents, isLoading, baseId }: DocumentListProps
     );
   }
 
+  // 空态
   if (documents.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center py-16 text-[#5a5a78]">
@@ -90,11 +105,13 @@ export function DocumentList({ documents, isLoading, baseId }: DocumentListProps
 
   return (
     <>
+      {/* 文档列表 */}
       <div className="flex flex-col gap-[2px]">
         {documents.map((doc: any) => (
           <div
             key={doc.id}
             className="flex items-center gap-3 p-[10px_14px] rounded-[10px] hover:bg-[#282840] transition-colors group">
+            {/* 文件图标 */}
             <div className="w-[36px] h-[36px] rounded-[8px] bg-[#282840] flex items-center justify-center shrink-0">
               <svg
                 className="w-[18px] h-[18px] text-[#8a8aa0]"
@@ -109,6 +126,7 @@ export function DocumentList({ documents, isLoading, baseId }: DocumentListProps
               </svg>
             </div>
 
+            {/* 文档信息：编辑态 / 展示态 */}
             <div className="flex-1 min-w-0">
               {editingId === doc.id ? (
                 <input
@@ -123,6 +141,7 @@ export function DocumentList({ documents, isLoading, baseId }: DocumentListProps
               ) : (
                 <p className="text-[#e0e0ec] text-[14px] truncate">{doc.filename}</p>
               )}
+              {/* 文件元信息：类型 · 大小 · 分块数 */}
               <p className="text-[#5a5a78] text-[12px]">
                 {doc.file_type?.toUpperCase() ?? ""}
                 {doc.file_size ? ` · ${formatFileSize(doc.file_size)}` : ""}
@@ -130,10 +149,12 @@ export function DocumentList({ documents, isLoading, baseId }: DocumentListProps
               </p>
             </div>
 
+            {/* 上传时间 */}
             <span className="text-[#5a5a78] text-[12px] shrink-0">
               {formatDate(doc.created_at)}
             </span>
 
+            {/* 操作按钮：hover 时显示 */}
             <div className="flex items-center gap-[4px] shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
               <button
                 className="p-[4px] rounded-[6px] hover:bg-[#323248] text-[#8a8aa0] hover:text-[#e0e0ec] transition-colors"
@@ -170,6 +191,7 @@ export function DocumentList({ documents, isLoading, baseId }: DocumentListProps
         ))}
       </div>
 
+      {/* 删除确认弹窗 */}
       <Popup open={deleteTarget !== null} onClose={() => setDeleteTarget(null)}>
         <div className="bg-[#1a1a2e] rounded-[16px] p-6 w-[380px]">
           <h3 className="text-[#e0e0ec] text-lg mb-2 font-medium">确认删除</h3>
@@ -198,12 +220,14 @@ export function DocumentList({ documents, isLoading, baseId }: DocumentListProps
   );
 }
 
+/** 文件大小格式化：B → KB → MB */
 function formatFileSize(bytes: number): string {
   if (bytes < 1024) return `${bytes} B`;
   if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
   return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
 }
 
+/** 日期格式化：今天 / 昨天 / N 天前 / 本地日期 */
 function formatDate(dateStr: string): string {
   const date = new Date(dateStr);
   const now = new Date();

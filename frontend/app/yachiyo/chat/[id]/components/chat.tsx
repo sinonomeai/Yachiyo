@@ -147,7 +147,7 @@ const MessageItem = memo(
   },
 );
 
-export const Chat = memo(({ messages, status, isLoading, messagesEndRef }: ChatProps) => {
+export const Chat = ({ messages, status, isLoading, messagesEndRef }: ChatProps) => {
   const historyMessages = messages.slice(0, -1);
   const lastMessage = messages[messages.length - 1];
 
@@ -197,4 +197,4 @@ export const Chat = memo(({ messages, status, isLoading, messagesEndRef }: ChatP
       </div>
     </div>
   );
-});
+};
